@@ -1,12 +1,10 @@
 package com.app.partssearchapp.screens.login.usecases
 
 import kotlinx.coroutines.delay
-import me.tatarka.inject.annotations.Inject
 
 /**
  * UseCase for handling authentication operations
  */
-@Inject
 class AuthUseCase {
   
   /**

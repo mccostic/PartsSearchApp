@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import com.app.partssearchapp.arch.BaseRoute
 import com.app.partssearchapp.screens.home.compose.HomeView
-import com.app.partssearchapp.screens.home.di.HomeComponent
-import com.app.partssearchapp.screens.home.di.create
 import kotlinx.serialization.Serializable
 
 /**
@@ -22,9 +20,6 @@ data class HomeParams(
 fun HomeRoute(backStackEntry: NavBackStackEntry) {
   BaseRoute<HomeViewModel, HomeState, HomeUIEvent, HomeNavEvent, HomeUIEffect, HomeParams>(
     backStackEntry = backStackEntry,
-    componentProvider = { params, applicationComponent ->
-      HomeComponent::class.create(params, applicationComponent).homeViewModel
-    },
     router = { navEvents ->
         HomeRouter(navEvents = navEvents)
     }
@@ -36,4 +31,3 @@ fun HomeRoute(backStackEntry: NavBackStackEntry) {
     )
   }
 }
-

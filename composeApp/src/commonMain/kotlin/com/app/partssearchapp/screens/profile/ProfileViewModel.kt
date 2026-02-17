@@ -7,13 +7,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
-import me.tatarka.inject.annotations.Inject
 import kotlin.time.Clock
 
 /**
  * ViewModel for Profile screen that manages user profile and settings
  */
-@Inject
 class ProfileViewModel(
     params: ProfileParams,
 ) : BaseViewModel<ProfileState, ProfileUIEvent, ProfileNavEvent, ProfileUIEffect, ProfileParams>(

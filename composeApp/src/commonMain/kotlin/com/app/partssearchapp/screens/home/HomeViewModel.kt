@@ -13,7 +13,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import me.tatarka.inject.annotations.Inject
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -21,7 +20,6 @@ import kotlin.time.ExperimentalTime
  * ViewModel for Home screen that manages user info and home state
  * Implements ProfileScreenListener to handle events from Profile screen
  */
-@Inject
 class HomeViewModel(
     params: HomeParams,
     private val repositoryService: RepositoryService,

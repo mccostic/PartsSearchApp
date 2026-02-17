@@ -1,7 +1,6 @@
 package com.app.partssearchapp.network
 
 import kotlinx.coroutines.delay
-import me.tatarka.inject.annotations.Inject
 
 /**
  * Global API client interface for making network requests
@@ -24,7 +23,6 @@ data class ApiResponse(
  * Mock implementation of ApiClient for demo purposes
  * In a real app, this would handle actual HTTP requests
  */
-@Inject
 class MockApiClient : ApiClient {
 
   override suspend fun get(endpoint: String): ApiResponse {

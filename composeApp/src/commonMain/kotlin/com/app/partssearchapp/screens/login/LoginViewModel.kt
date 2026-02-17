@@ -5,13 +5,10 @@ import com.app.partssearchapp.screens.home.HomeParams
 import com.app.partssearchapp.screens.login.usecases.AuthUseCase
 import com.app.partssearchapp.utils.debounce300
 import kotlinx.coroutines.flow.filterIsInstance
-import me.tatarka.inject.annotations.Inject
-
 /**
  * ViewModel for Login/Registration screen that handles authentication
  * with improved state management and clean separation of concerns
  */
-@Inject
 class LoginViewModel(
     params: LoginParams,
     private val authUseCase: AuthUseCase,

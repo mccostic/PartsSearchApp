@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import me.tatarka.inject.annotations.Inject
 import kotlin.text.get
 
 /**
@@ -36,7 +35,6 @@ interface RepositoryService {
  * Implementation of RepositoryService that depends on global ApiClient
  * This demonstrates how a feature-specific service can depend on global infrastructure
  */
-@Inject
 class NetworkRepositoryService(
   private val apiClient: ApiClient,
 ) : RepositoryService {
