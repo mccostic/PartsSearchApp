@@ -7,7 +7,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.app.partssearchapp.di.appModule
 import com.app.partssearchapp.global.CustomSnackbarHost
 import com.app.partssearchapp.global.GlobalPopupLayer
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 
 @Composable

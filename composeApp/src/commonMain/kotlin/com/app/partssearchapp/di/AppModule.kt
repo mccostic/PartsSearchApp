@@ -18,7 +18,7 @@ val appModule = module {
     // Global singleton services
     single<ApiClient> { MockApiClient() }
     single<RepositoryService> { NetworkRepositoryService(get()) }
-    single { AuthUseCase() }
+    factory { AuthUseCase() }
 
     // Screen ViewModels (created per navigation entry, params injected at call site)
     viewModel { (params: LoginParams) -> LoginViewModel(params, get()) }
