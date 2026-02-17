@@ -1,29 +1,26 @@
 package com.app.partssearchapp.screens.home.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.app.partssearchapp.data.models.Part
+import com.app.partssearchapp.data.models.VehicleMake
 import com.app.partssearchapp.screens.home.HomeState
 import com.app.partssearchapp.screens.home.HomeUIEffect
 import com.app.partssearchapp.screens.home.HomeUIEvent
-import com.app.partssearchapp.screens.home.UserInfo
-import com.app.partssearchapp.screens.home.data.Repository
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Home screen UI
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
@@ -31,372 +28,444 @@ fun HomeView(
   onEvent: (HomeUIEvent) -> Unit,
   uiEffects: Flow<HomeUIEffect>,
 ) {
-  // Handle UI Effects
-  LaunchedEffect(Unit) {
-    uiEffects.collect { effect ->
-      when (effect) {
-        is HomeUIEffect.ShowWelcomeDialog -> {
-          // Handle welcome dialog if needed
-        }
-      }
-    }
-  }
-
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { Text("Welcome ${state.userInfo.name}") },
+        title = {
+          Text("PartsSearch GH")
+        },
         actions = {
-          IconButton(onClick = { onEvent(HomeUIEvent.NavigateToProfile) }) {
-            Icon(Icons.Default.Person, contentDescription = "Profile")
+          IconButton(onClick = { onEvent(HomeUIEvent.NavigateToCart) }) {
+            Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
           }
-          IconButton(onClick = { onEvent(HomeUIEvent.LogoutClicked) }) {
-            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
+          IconButton(onClick = { onEvent(HomeUIEvent.NavigateToVendorDashboard) }) {
+            Icon(Icons.Default.Store, contentDescription = "Vendor Dashboard")
           }
         }
-      )
-    },
-    floatingActionButton = {
-      ExtendedFloatingActionButton(
-        onClick = { onEvent(HomeUIEvent.RefreshData) },
-        icon = { 
-          if (state.processState.refreshing) {
-            CircularProgressIndicator(modifier = Modifier.size(18.dp))
-          } else {
-            Icon(Icons.Default.Refresh, contentDescription = null)
-          }
-        },
-        text = { Text("Refresh") }
       )
     }
   ) { paddingValues ->
     LazyColumn(
       modifier = Modifier
         .fillMaxSize()
-        .padding(paddingValues)
-        .padding(16.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp)
+        .padding(paddingValues),
+      contentPadding = PaddingValues(bottom = 16.dp),
     ) {
+      // Hero section
       item {
-        UserInfoCard(
-          userInfo = state.userInfo,
-            onShowWelcome = { onEvent(HomeUIEvent.ShowWelcomeDialog) }
+        HeroSection(
+          searchQuery = state.searchQuery,
+          isSearching = state.isSearching,
+          onSearchQueryChanged = { onEvent(HomeUIEvent.SearchQueryChanged(it)) },
+          onSearch = { onEvent(HomeUIEvent.SearchParts) },
+          onSelectVehicle = { onEvent(HomeUIEvent.NavigateToVehicleSelection) },
         )
       }
-      
-      // Repositories Section
-      item {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            text = "My Repositories",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-          )
-          if (state.processState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.size(20.dp))
-          } else {
-            IconButton(onClick = { onEvent(HomeUIEvent.LoadRepositories) }) {
-              Icon(Icons.Default.Refresh, contentDescription = "Refresh Repositories")
-            }
-          }
-        }
-      }
-      
-      if (state.repositories.isNotEmpty()) {
-        items(state.repositories) { repository ->
-          RepositoryCard(
-            repository = repository,
-            onClick = {
-              onEvent(HomeUIEvent.RepositoryClicked(repository))
-            }
-          )
-        }
-      } else if (!state.processState.isLoading) {
+
+      // Search results
+      if (state.searchResults.isNotEmpty()) {
         item {
-          Card(
-            modifier = Modifier.fillMaxWidth()
-          ) {
-            Column(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-              horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-              Icon(
-                imageVector = Icons.Default.FolderOpen,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-              )
-              Spacer(modifier = Modifier.height(8.dp))
-              Text(
-                text = "No repositories found",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-              )
-              Spacer(modifier = Modifier.height(8.dp))
-              TextButton(onClick = { onEvent(HomeUIEvent.LoadRepositories) }) {
-                Text("Load Repositories")
-              }
-            }
-          }
+          Text(
+            text = "Search Results (${state.searchResults.size})",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+          )
+        }
+        items(state.searchResults) { part ->
+          SearchResultItem(
+            part = part,
+            onClick = { onEvent(HomeUIEvent.SearchResultClicked(part)) },
+          )
         }
       }
-      
+
+      // Popular Makes section
       item {
         Text(
-          text = "Features",
-          style = MaterialTheme.typography.headlineSmall,
-          fontWeight = FontWeight.Bold
+          text = "Popular Makes",
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
         )
       }
-      items(getDemoFeatures()) { feature ->
-        FeatureCard(
-          feature = feature,
-          onClick = { onEvent(HomeUIEvent.TabSelected(feature.id)) }
+
+      item {
+        if (state.isLoading) {
+          Box(
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(120.dp),
+            contentAlignment = Alignment.Center,
+          ) {
+            CircularProgressIndicator()
+          }
+        } else {
+          LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            items(state.popularMakes) { make ->
+              MakeChip(
+                make = make,
+                onClick = { onEvent(HomeUIEvent.MakeSelected(make)) },
+              )
+            }
+          }
+        }
+      }
+
+      // How it works section
+      item {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+          text = "How It Works",
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+      }
+
+      item {
+        HowItWorksSection()
+      }
+
+      // Quick actions
+      item {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+          text = "Quick Actions",
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+      }
+
+      item {
+        QuickActionsSection(
+          onSelectVehicle = { onEvent(HomeUIEvent.NavigateToVehicleSelection) },
+          onViewCart = { onEvent(HomeUIEvent.NavigateToCart) },
+          onVendorDashboard = { onEvent(HomeUIEvent.NavigateToVendorDashboard) },
         )
       }
     }
   }
-
-  // Welcome Dialog
-  if (state.uiState.showWelcomeDialog) {
-    WelcomeDialog(
-      userName = state.userInfo.name,
-      isNewUser = state.userInfo.loginType == "sign_up",
-      onDismiss = { onEvent(HomeUIEvent.DismissWelcomeDialog) }
-    )
-  }
 }
 
 @Composable
-private fun UserInfoCard(
-  userInfo: UserInfo,
-  onShowWelcome: () -> Unit
+private fun HeroSection(
+  searchQuery: String,
+  isSearching: Boolean,
+  onSearchQueryChanged: (String) -> Unit,
+  onSearch: () -> Unit,
+  onSelectVehicle: () -> Unit,
 ) {
-  Card(
+  Surface(
+    color = MaterialTheme.colorScheme.primaryContainer,
     modifier = Modifier.fillMaxWidth(),
-    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
   ) {
     Column(
-      modifier = Modifier.padding(16.dp)
+      modifier = Modifier.padding(24.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Text(
-        text = "User Information",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold
+        text = "Find Auto Parts in Ghana",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        textAlign = TextAlign.Center,
       )
       Spacer(modifier = Modifier.height(8.dp))
-      InfoRow(label = "Email", value = userInfo.email)
-      InfoRow(label = "Name", value = userInfo.name)
-      InfoRow(label = "Login Type", value = userInfo.loginType.replace("_", " ").uppercase())
-      InfoRow(label = "Login Time", value = userInfo.loginTime)
-      Spacer(modifier = Modifier.height(8.dp))
-      TextButton(onClick = onShowWelcome) {
-        Text("Show Welcome Message")
+      Text(
+        text = "Compare prices from multiple vendors across Ghana",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+        textAlign = TextAlign.Center,
+      )
+
+      Spacer(modifier = Modifier.height(20.dp))
+
+      // Search bar
+      OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchQueryChanged,
+        placeholder = { Text("Search by part name or number...") },
+        leadingIcon = {
+          Icon(Icons.Default.Search, contentDescription = null)
+        },
+        trailingIcon = {
+          if (isSearching) {
+            CircularProgressIndicator(modifier = Modifier.size(20.dp))
+          }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+          unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+          focusedContainerColor = MaterialTheme.colorScheme.surface,
+        ),
+      )
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      // Select vehicle button
+      Button(
+        onClick = onSelectVehicle,
+        modifier = Modifier.fillMaxWidth(),
+      ) {
+        Icon(Icons.Default.DirectionsCar, contentDescription = null)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Select Your Vehicle")
       }
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      Text(
+        text = "Year > Make > Model > Engine",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+      )
     }
   }
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
-  Row(
-    modifier = Modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.SpaceBetween
-  ) {
-    Text(
-      text = "$label:",
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Text(
-      text = value,
-      style = MaterialTheme.typography.bodyMedium,
-      fontWeight = FontWeight.Medium
-    )
-  }
-}
-
-@Composable
-private fun RepositoryCard(
-  repository: Repository,
-  onClick: () -> Unit
+private fun MakeChip(
+  make: VehicleMake,
+  onClick: () -> Unit,
 ) {
   Card(
     onClick = onClick,
-    modifier = Modifier.fillMaxWidth()
+    modifier = Modifier.width(100.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
+        .padding(12.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-      ) {
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = repository.name,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-          )
-          Text(
-            text = repository.description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-        }
-        
-        Icon(
-          imageVector = if (repository.isPrivate) Icons.Default.Lock else Icons.Default.Public,
-          contentDescription = if (repository.isPrivate) "Private" else "Public",
-          tint = if (repository.isPrivate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-          modifier = Modifier.size(20.dp)
-        )
-      }
-      
+      Icon(
+        Icons.Default.DirectionsCar,
+        contentDescription = null,
+        modifier = Modifier.size(32.dp),
+        tint = MaterialTheme.colorScheme.primary,
+      )
       Spacer(modifier = Modifier.height(8.dp))
-      
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-      ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            imageVector = Icons.Default.Code,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-          Spacer(modifier = Modifier.width(4.dp))
-          Text(
-            text = repository.language,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-        }
-        
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-          Spacer(modifier = Modifier.width(4.dp))
-          Text(
-            text = repository.stars.toString(),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-        }
-      }
+      Text(
+        text = make.name,
+        style = MaterialTheme.typography.labelMedium,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+      )
     }
   }
 }
 
 @Composable
-private fun FeatureCard(
-  feature: DemoFeature,
-  onClick: () -> Unit
+private fun SearchResultItem(
+  part: Part,
+  onClick: () -> Unit,
+) {
+  ListItem(
+    headlineContent = { Text(part.name) },
+    supportingContent = {
+      Column {
+        Text(part.description)
+        Text(
+          "Part #: ${part.partNumber}",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.primary,
+        )
+      }
+    },
+    leadingContent = {
+      Icon(Icons.Default.Build, contentDescription = null)
+    },
+    trailingContent = {
+      Icon(Icons.Default.ChevronRight, contentDescription = null)
+    },
+    modifier = Modifier.clickable { onClick() },
+  )
+  HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+}
+
+@Composable
+private fun HowItWorksSection() {
+  Column(
+    modifier = Modifier.padding(horizontal = 16.dp),
+    verticalArrangement = Arrangement.spacedBy(12.dp),
+  ) {
+    StepCard(
+      stepNumber = 1,
+      title = "Select Your Vehicle",
+      description = "Choose your car's make, year, model, and engine type",
+      icon = Icons.Default.DirectionsCar,
+    )
+    StepCard(
+      stepNumber = 2,
+      title = "Browse Parts",
+      description = "Find the parts you need from categories like Brakes, Engine, Electrical, and more",
+      icon = Icons.Default.Category,
+    )
+    StepCard(
+      stepNumber = 3,
+      title = "Compare Vendors",
+      description = "See prices from multiple vendors across Accra, Kumasi, Tema, and more",
+      icon = Icons.Default.CompareArrows,
+    )
+    StepCard(
+      stepNumber = 4,
+      title = "Order & Deliver",
+      description = "Add to cart, checkout, and have parts delivered to your location",
+      icon = Icons.Default.LocalShipping,
+    )
+  }
+}
+
+@Composable
+private fun StepCard(
+  stepNumber: Int,
+  title: String,
+  description: String,
+  icon: androidx.compose.ui.graphics.vector.ImageVector,
 ) {
   Card(
-    onClick = onClick,
-    modifier = Modifier.fillMaxWidth()
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surfaceVariant,
+    ),
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp),
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
-      Icon(
-        imageVector = feature.icon,
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.primary
-      )
+      Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(40.dp),
+      ) {
+        Box(contentAlignment = Alignment.Center) {
+          Text(
+            "$stepNumber",
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontWeight = FontWeight.Bold,
+          )
+        }
+      }
       Spacer(modifier = Modifier.width(16.dp))
-      Column {
+      Column(modifier = Modifier.weight(1f)) {
         Text(
-          text = feature.title,
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Medium
+          title,
+          style = MaterialTheme.typography.titleSmall,
+          fontWeight = FontWeight.Bold,
         )
         Text(
-          text = feature.description,
+          description,
           style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+      }
+      Icon(
+        icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+      )
+    }
+  }
+}
+
+@Composable
+private fun QuickActionsSection(
+  onSelectVehicle: () -> Unit,
+  onViewCart: () -> Unit,
+  onVendorDashboard: () -> Unit,
+) {
+  Column(
+    modifier = Modifier.padding(horizontal = 16.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+  ) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      QuickActionCard(
+        title = "Part Catalog",
+        icon = Icons.Default.Search,
+        onClick = onSelectVehicle,
+        modifier = Modifier.weight(1f),
+      )
+      QuickActionCard(
+        title = "Shopping Cart",
+        icon = Icons.Default.ShoppingCart,
+        onClick = onViewCart,
+        modifier = Modifier.weight(1f),
+      )
+    }
+    Card(
+      onClick = onVendorDashboard,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+      ) {
+        Icon(
+          Icons.Default.Store,
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+          Text(
+            "Vendor Dashboard",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium,
+          )
+          Text(
+            "Manage your parts inventory and orders",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
       }
     }
   }
 }
 
 @Composable
-private fun WelcomeDialog(
-  userName: String,
-  isNewUser: Boolean,
-  onDismiss: () -> Unit
+private fun QuickActionCard(
+  title: String,
+  icon: androidx.compose.ui.graphics.vector.ImageVector,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
 ) {
-  AlertDialog(
-    onDismissRequest = onDismiss,
-    title = { 
-      Text(if (isNewUser) "Welcome to the App!" else "Welcome Back!") 
-    },
-    text = { 
+  Card(
+    onClick = onClick,
+    modifier = modifier,
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Icon(
+        icon,
+        contentDescription = null,
+        modifier = Modifier.size(32.dp),
+        tint = MaterialTheme.colorScheme.primary,
+      )
+      Spacer(modifier = Modifier.height(8.dp))
       Text(
-        if (isNewUser) 
-          "Hi $userName! Thanks for signing up. We're excited to have you on board!"
-        else 
-          "Welcome back, $userName! Great to see you again."
-      ) 
-    },
-    confirmButton = {
-      TextButton(onClick = onDismiss) {
-        Text("Got it!")
-      }
+        title,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.Medium,
+      )
     }
-  )
+  }
 }
-
-// Demo data
-data class DemoFeature(
-  val id: Int,
-  val title: String,
-  val description: String,
-  val icon: ImageVector
-)
-
-private fun getDemoFeatures() = listOf(
-  DemoFeature(
-    id = 0,
-    title = "Dashboard",
-    description = "View your main dashboard with quick stats",
-    icon = Icons.Default.Dashboard
-  ),
-  DemoFeature(
-    id = 1,
-    title = "Analytics",
-    description = "Check detailed analytics and reports",
-    icon = Icons.Default.Analytics
-  ),
-  DemoFeature(
-    id = 2,
-    title = "Settings",
-    description = "Manage your app preferences and settings",
-    icon = Icons.Default.Settings
-  ),
-  DemoFeature(
-    id = 3,
-    title = "Help & Support",
-    description = "Get help and contact our support team",
-    icon = Icons.AutoMirrored.Filled.Help
-  ),
-)
