@@ -5,7 +5,7 @@ import androidx.navigation.NavBackStackEntry
 import com.app.partssearchapp.arch.BaseRoute
 import com.app.partssearchapp.screens.login.compose.LoginView
 import com.app.partssearchapp.screens.login.di.LoginComponent
-import com.punith.mediumarticle.screens.login.di.create
+import com.app.partssearchapp.screens.login.di.create
 import kotlinx.serialization.Serializable
 
 @Serializable

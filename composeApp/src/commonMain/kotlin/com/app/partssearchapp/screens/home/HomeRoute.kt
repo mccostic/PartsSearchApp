@@ -5,7 +5,7 @@ import androidx.navigation.NavBackStackEntry
 import com.app.partssearchapp.arch.BaseRoute
 import com.app.partssearchapp.screens.home.compose.HomeView
 import com.app.partssearchapp.screens.home.di.HomeComponent
-import com.punith.mediumarticle.screens.home.di.create
+import com.app.partssearchapp.screens.home.di.create
 import kotlinx.serialization.Serializable
 
 /**

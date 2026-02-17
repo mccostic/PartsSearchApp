@@ -21,7 +21,7 @@ import com.app.partssearchapp.screens.login.DialogState
 import com.app.partssearchapp.screens.login.LoginState
 import com.app.partssearchapp.screens.login.LoginUIEffect
 import com.app.partssearchapp.screens.login.LoginUIEvent
-import com.punith.mediumarticle.screens.login.*
+import com.app.partssearchapp.screens.login.*
 import kotlinx.coroutines.flow.Flow
 
 /**

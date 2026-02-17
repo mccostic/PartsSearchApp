@@ -5,7 +5,7 @@ import androidx.navigation.NavBackStackEntry
 import com.app.partssearchapp.arch.BaseRoute
 import com.app.partssearchapp.screens.profile.compose.ProfileView
 import com.app.partssearchapp.screens.profile.di.ProfileComponent
-import com.punith.mediumarticle.screens.profile.di.create
+import com.app.partssearchapp.screens.profile.di.create
 import kotlinx.serialization.Serializable
 
 /**
