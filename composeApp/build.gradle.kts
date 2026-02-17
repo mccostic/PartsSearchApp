@@ -28,6 +28,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(compose.preview)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
         }
@@ -42,6 +43,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
+            // Kotlin Inject
+            implementation(libs.kotlin.inject.runtime)
             // Navigation
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)

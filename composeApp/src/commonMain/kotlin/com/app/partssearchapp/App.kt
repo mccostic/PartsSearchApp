@@ -6,8 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.tooling.preview.Preview
 import com.app.partssearchapp.di.ApplicationComponent
-import com.punith.mediumarticle.di.create
+import com.app.partssearchapp.di.create
 import com.app.partssearchapp.global.CustomSnackbarHost
 import com.app.partssearchapp.global.GlobalPopupLayer
 import org.jetbrains.compose.ui.tooling.preview.Preview
