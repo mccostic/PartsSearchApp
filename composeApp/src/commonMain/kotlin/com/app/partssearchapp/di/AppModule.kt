@@ -1,10 +1,11 @@
 package com.app.partssearchapp.di
 
 import com.app.partssearchapp.data.service.CartManager
-import com.app.partssearchapp.data.service.MockPartsDataService
+import com.app.partssearchapp.data.service.NhtsaPartsDataService
 import com.app.partssearchapp.data.service.PartsDataService
 import com.app.partssearchapp.network.ApiClient
 import com.app.partssearchapp.network.MockApiClient
+import com.app.partssearchapp.network.nhtsa.NhtsaApiClient
 import com.app.partssearchapp.screens.cart.CartParams
 import com.app.partssearchapp.screens.cart.CartViewModel
 import com.app.partssearchapp.screens.categories.CategoriesParams
@@ -30,7 +31,8 @@ import org.koin.dsl.module
 val appModule = module {
     // Global singleton services
     single<ApiClient> { MockApiClient() }
-    single<PartsDataService> { MockPartsDataService() }
+    single { NhtsaApiClient() }
+    single<PartsDataService> { NhtsaPartsDataService(get()) }
     single { CartManager() }
     factory { AuthUseCase() }
 
