@@ -1,12 +1,14 @@
 package com.app.partssearchapp.screens.home
 
 import com.app.partssearchapp.arch.BaseViewModel
+import com.app.partssearchapp.data.service.InventoryManager
 import com.app.partssearchapp.data.service.PartsDataService
 import kotlinx.coroutines.flow.filterIsInstance
 
 class HomeViewModel(
   params: HomeParams,
   private val partsDataService: PartsDataService,
+  private val inventoryManager: InventoryManager,
 ) : BaseViewModel<HomeState, HomeUIEvent, HomeNavEvent, HomeUIEffect, HomeParams>(
   params = params,
   initialState = HomeState()
@@ -25,6 +27,7 @@ class HomeViewModel(
     launch { navigateToCartHandler() }
     launch { navigateToVendorDashboardHandler() }
     launch { searchResultClickedHandler() }
+    launch { clearSearchHandler() }
   }
 
   private suspend fun loadPopularMakes() {
@@ -46,7 +49,7 @@ class HomeViewModel(
         if (event.query.length >= 2) {
           updateState { copy(isSearching = true) }
           try {
-            val results = partsDataService.searchParts(event.query)
+            val results = inventoryManager.searchPartsWithListings(event.query)
             updateState { copy(searchResults = results, isSearching = false) }
           } catch (e: Exception) {
             updateState { copy(isSearching = false) }
@@ -65,7 +68,7 @@ class HomeViewModel(
         if (query.isNotBlank()) {
           updateState { copy(isSearching = true) }
           try {
-            val results = partsDataService.searchParts(query)
+            val results = inventoryManager.searchPartsWithListings(query)
             updateState { copy(searchResults = results, isSearching = false) }
           } catch (e: Exception) {
             updateState { copy(isSearching = false) }
@@ -108,7 +111,6 @@ class HomeViewModel(
     uiEvents
       .filterIsInstance<HomeUIEvent.NavigateToVendorDashboard>()
       .collect {
-        // Navigate to first vendor for demo
         emitNavEvent(HomeNavEvent.NavigateToVendorDashboard(vendorId = 1))
       }
   }
@@ -116,9 +118,21 @@ class HomeViewModel(
   private suspend fun searchResultClickedHandler() {
     uiEvents
       .filterIsInstance<HomeUIEvent.SearchResultClicked>()
+      .collect { event ->
+        emitNavEvent(
+          HomeNavEvent.NavigateToPartDetail(
+            partId = event.part.id,
+            partName = event.part.name,
+          )
+        )
+      }
+  }
+
+  private suspend fun clearSearchHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.ClearSearch>()
       .collect {
-        // For now, navigate to vehicle selection
-        emitNavEvent(HomeNavEvent.NavigateToVehicleSelection())
+        updateState { copy(searchQuery = "", searchResults = emptyList()) }
       }
   }
 }

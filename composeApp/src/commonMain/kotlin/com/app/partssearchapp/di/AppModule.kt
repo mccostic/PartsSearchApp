@@ -1,6 +1,7 @@
 package com.app.partssearchapp.di
 
 import com.app.partssearchapp.data.service.CartManager
+import com.app.partssearchapp.data.service.InventoryManager
 import com.app.partssearchapp.data.service.NhtsaPartsDataService
 import com.app.partssearchapp.data.service.PartsDataService
 import com.app.partssearchapp.network.ApiClient
@@ -32,13 +33,14 @@ val appModule = module {
     // Global singleton services
     single<ApiClient> { MockApiClient() }
     single { NhtsaApiClient() }
-    single<PartsDataService> { NhtsaPartsDataService(get()) }
-    single { CartManager() }
+    single { InventoryManager() }
+    single<PartsDataService> { NhtsaPartsDataService(get(), get()) }
+    single { CartManager(get()) }
     factory { AuthUseCase() }
 
     // Screen ViewModels
     viewModel { (params: LoginParams) -> LoginViewModel(params, get()) }
-    viewModel { (params: HomeParams) -> HomeViewModel(params, get()) }
+    viewModel { (params: HomeParams) -> HomeViewModel(params, get(), get()) }
     viewModel { (params: ProfileParams) -> ProfileViewModel(params) }
     viewModel { (params: VehicleSelectionParams) -> VehicleSelectionViewModel(params, get()) }
     viewModel { (params: CategoriesParams) -> CategoriesViewModel(params, get()) }

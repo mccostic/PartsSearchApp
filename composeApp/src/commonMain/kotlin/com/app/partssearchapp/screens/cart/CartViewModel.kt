@@ -107,7 +107,7 @@ class CartViewModel(
     uiEvents
       .filterIsInstance<CartUIEvent.ConfirmOrder>()
       .collect {
-        cartManager.clearCart()
+        cartManager.checkout()
         updateState { copy(showCheckoutDialog = false) }
         showSuccessSnackbar("Order placed successfully! Vendors have been notified.")
         emitUIEffect(CartUIEffect.OrderPlaced)

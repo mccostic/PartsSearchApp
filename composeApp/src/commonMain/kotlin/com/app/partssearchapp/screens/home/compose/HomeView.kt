@@ -1,6 +1,5 @@
 package com.app.partssearchapp.screens.home.compose
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -13,9 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.app.partssearchapp.data.models.Part
 import com.app.partssearchapp.data.models.VehicleMake
+import com.app.partssearchapp.data.service.PartWithListings
 import com.app.partssearchapp.screens.home.HomeState
 import com.app.partssearchapp.screens.home.HomeUIEffect
 import com.app.partssearchapp.screens.home.HomeUIEvent
@@ -51,7 +51,7 @@ fun HomeView(
         .padding(paddingValues),
       contentPadding = PaddingValues(bottom = 16.dp),
     ) {
-      // Hero section
+      // Hero section with search
       item {
         HeroSection(
           searchQuery = state.searchQuery,
@@ -59,94 +59,136 @@ fun HomeView(
           onSearchQueryChanged = { onEvent(HomeUIEvent.SearchQueryChanged(it)) },
           onSearch = { onEvent(HomeUIEvent.SearchParts) },
           onSelectVehicle = { onEvent(HomeUIEvent.NavigateToVehicleSelection) },
+          onClearSearch = { onEvent(HomeUIEvent.ClearSearch) },
         )
       }
 
       // Search results
       if (state.searchResults.isNotEmpty()) {
         item {
-          Text(
-            text = "Search Results (${state.searchResults.size})",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Text(
+              text = "${state.searchResults.size} part${if (state.searchResults.size > 1) "s" else ""} found",
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Bold,
+            )
+            TextButton(onClick = { onEvent(HomeUIEvent.ClearSearch) }) {
+              Text("Clear")
+            }
+          }
+        }
+        items(state.searchResults) { result ->
+          SearchResultCard(
+            result = result,
+            onClick = { onEvent(HomeUIEvent.SearchResultClicked(result.part)) },
           )
         }
-        items(state.searchResults) { part ->
-          SearchResultItem(
-            part = part,
-            onClick = { onEvent(HomeUIEvent.SearchResultClicked(part)) },
-          )
-        }
-      }
-
-      // Popular Makes section
-      item {
-        Text(
-          text = "Popular Makes",
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
-        )
-      }
-
-      item {
-        if (state.isLoading) {
+      } else if (state.searchQuery.length >= 2 && !state.isSearching) {
+        item {
           Box(
             modifier = Modifier
               .fillMaxWidth()
-              .height(120.dp),
+              .padding(32.dp),
             contentAlignment = Alignment.Center,
           ) {
-            CircularProgressIndicator()
-          }
-        } else {
-          LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-          ) {
-            items(state.popularMakes) { make ->
-              MakeChip(
-                make = make,
-                onClick = { onEvent(HomeUIEvent.MakeSelected(make)) },
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Icon(
+                Icons.Default.SearchOff,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+              )
+              Spacer(modifier = Modifier.height(8.dp))
+              Text(
+                "No parts found for \"${state.searchQuery}\"",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+              )
+              Text(
+                "Try searching by part name, number, or brand",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
         }
       }
 
-      // How it works section
-      item {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-          text = "How It Works",
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-      }
+      // Only show the rest when not searching
+      if (state.searchResults.isEmpty() && state.searchQuery.length < 2) {
+        // Popular Makes
+        item {
+          Text(
+            text = "Popular Makes",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+          )
+        }
 
-      item {
-        HowItWorksSection()
-      }
+        item {
+          if (state.isLoading) {
+            Box(
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+              contentAlignment = Alignment.Center,
+            ) {
+              CircularProgressIndicator()
+            }
+          } else {
+            LazyRow(
+              contentPadding = PaddingValues(horizontal = 16.dp),
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+              items(state.popularMakes) { make ->
+                MakeChip(
+                  make = make,
+                  onClick = { onEvent(HomeUIEvent.MakeSelected(make)) },
+                )
+              }
+            }
+          }
+        }
 
-      // Quick actions
-      item {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-          text = "Quick Actions",
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-      }
+        // How it works
+        item {
+          Spacer(modifier = Modifier.height(24.dp))
+          Text(
+            text = "How It Works",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+          )
+        }
 
-      item {
-        QuickActionsSection(
-          onSelectVehicle = { onEvent(HomeUIEvent.NavigateToVehicleSelection) },
-          onViewCart = { onEvent(HomeUIEvent.NavigateToCart) },
-          onVendorDashboard = { onEvent(HomeUIEvent.NavigateToVendorDashboard) },
-        )
+        item { HowItWorksSection() }
+
+        // Quick actions
+        item {
+          Spacer(modifier = Modifier.height(24.dp))
+          Text(
+            text = "Quick Actions",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+          )
+        }
+
+        item {
+          QuickActionsSection(
+            onSelectVehicle = { onEvent(HomeUIEvent.NavigateToVehicleSelection) },
+            onViewCart = { onEvent(HomeUIEvent.NavigateToCart) },
+            onVendorDashboard = { onEvent(HomeUIEvent.NavigateToVendorDashboard) },
+          )
+        }
       }
     }
   }
@@ -159,6 +201,7 @@ private fun HeroSection(
   onSearchQueryChanged: (String) -> Unit,
   onSearch: () -> Unit,
   onSelectVehicle: () -> Unit,
+  onClearSearch: () -> Unit,
 ) {
   Surface(
     color = MaterialTheme.colorScheme.primaryContainer,
@@ -189,13 +232,17 @@ private fun HeroSection(
       OutlinedTextField(
         value = searchQuery,
         onValueChange = onSearchQueryChanged,
-        placeholder = { Text("Search by part name or number...") },
+        placeholder = { Text("Search by part name, number, or brand...") },
         leadingIcon = {
           Icon(Icons.Default.Search, contentDescription = null)
         },
         trailingIcon = {
           if (isSearching) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp))
+          } else if (searchQuery.isNotEmpty()) {
+            IconButton(onClick = onClearSearch) {
+              Icon(Icons.Default.Close, contentDescription = "Clear")
+            }
           }
         },
         modifier = Modifier.fillMaxWidth(),
@@ -205,6 +252,22 @@ private fun HeroSection(
           focusedContainerColor = MaterialTheme.colorScheme.surface,
         ),
       )
+
+      // Search hint chips
+      if (searchQuery.isEmpty()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          listOf("brake pad", "oil filter", "battery", "spark plug").forEach { hint ->
+            SuggestionChip(
+              onClick = { onSearchQueryChanged(hint) },
+              label = { Text(hint, style = MaterialTheme.typography.labelSmall) },
+            )
+          }
+        }
+      }
 
       Spacer(modifier = Modifier.height(16.dp))
 
@@ -225,6 +288,117 @@ private fun HeroSection(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
       )
+    }
+  }
+}
+
+@Composable
+private fun SearchResultCard(
+  result: PartWithListings,
+  onClick: () -> Unit,
+) {
+  Card(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 16.dp, vertical = 4.dp),
+    onClick = onClick,
+    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(12.dp)
+    ) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top,
+      ) {
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = result.part.name,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+          )
+          Text(
+            text = result.part.partNumber,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+          )
+          Text(
+            text = result.part.description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+          )
+        }
+        if (result.lowestPrice != null) {
+          Column(horizontalAlignment = Alignment.End) {
+            Text(
+              text = "from",
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+              text = "GHS ${result.lowestPrice.formatPrice()}",
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      // Vendor info row
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(
+            Icons.Default.Store,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          Spacer(modifier = Modifier.width(4.dp))
+          Text(
+            text = "${result.vendorCount} vendor${if (result.vendorCount > 1) "s" else ""}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(
+            Icons.Default.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = MaterialTheme.colorScheme.tertiary,
+          )
+          Spacer(modifier = Modifier.width(4.dp))
+          Text(
+            text = "In Stock",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.tertiary,
+          )
+        }
+
+        // Brands available
+        val brands = result.listings.map { it.brandName }.distinct().take(3)
+        Text(
+          text = brands.joinToString(" / "),
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
     }
   }
 }
@@ -263,34 +437,6 @@ private fun MakeChip(
 }
 
 @Composable
-private fun SearchResultItem(
-  part: Part,
-  onClick: () -> Unit,
-) {
-  ListItem(
-    headlineContent = { Text(part.name) },
-    supportingContent = {
-      Column {
-        Text(part.description)
-        Text(
-          "Part #: ${part.partNumber}",
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.primary,
-        )
-      }
-    },
-    leadingContent = {
-      Icon(Icons.Default.Build, contentDescription = null)
-    },
-    trailingContent = {
-      Icon(Icons.Default.ChevronRight, contentDescription = null)
-    },
-    modifier = Modifier.clickable { onClick() },
-  )
-  HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-}
-
-@Composable
 private fun HowItWorksSection() {
   Column(
     modifier = Modifier.padding(horizontal = 16.dp),
@@ -305,7 +451,7 @@ private fun HowItWorksSection() {
     StepCard(
       stepNumber = 2,
       title = "Browse Parts",
-      description = "Find the parts you need from categories like Brakes, Engine, Electrical, and more",
+      description = "Find parts from categories like Brakes, Engine, Electrical, and more",
       icon = Icons.Default.Category,
     )
     StepCard(
@@ -331,9 +477,7 @@ private fun StepCard(
   icon: androidx.compose.ui.graphics.vector.ImageVector,
 ) {
   Card(
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceVariant,
-    ),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
   ) {
     Row(
       modifier = Modifier
@@ -367,11 +511,7 @@ private fun StepCard(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
-      Icon(
-        icon,
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.primary,
-      )
+      Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
     }
   }
 }
@@ -468,4 +608,10 @@ private fun QuickActionCard(
       )
     }
   }
+}
+
+private fun Double.formatPrice(): String {
+  val intPart = this.toLong()
+  val decPart = ((this - intPart) * 100).toLong()
+  return "$intPart.${decPart.toString().padStart(2, '0')}"
 }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.app.partssearchapp.LocalNavController
 import com.app.partssearchapp.screens.cart.CartParams
 import com.app.partssearchapp.screens.login.LoginParams
+import com.app.partssearchapp.screens.partdetail.PartDetailParams
 import com.app.partssearchapp.screens.vehicleselection.VehicleSelectionParams
 import com.app.partssearchapp.screens.vendor.VendorDashboardParams
 import kotlinx.coroutines.flow.Flow
@@ -39,6 +40,16 @@ fun HomeRouter(
         is HomeNavEvent.NavigateToVendorDashboard -> {
           rootNavController.navigate(
             VendorDashboardParams(vendorId = it.vendorId)
+          )
+        }
+        is HomeNavEvent.NavigateToPartDetail -> {
+          rootNavController.navigate(
+            PartDetailParams(
+              partId = it.partId,
+              partName = it.partName,
+              vehicleBreadcrumb = "Search",
+              categoryName = "Search Results",
+            )
           )
         }
       }

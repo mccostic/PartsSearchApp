@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class CartManager {
+class CartManager(
+  private val inventoryManager: InventoryManager,
+) {
   private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
   val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
@@ -42,6 +44,14 @@ class CartManager {
     _cartItems.update { items ->
       items.map { if (it.id == itemId) it.copy(quantity = quantity) else it }
     }
+  }
+
+  fun checkout() {
+    // Deduct stock from inventory for each cart item
+    _cartItems.value.forEach { item ->
+      inventoryManager.updateStockAfterPurchase(item.vendorListing.id, item.quantity)
+    }
+    clearCart()
   }
 
   fun clearCart() {

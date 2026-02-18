@@ -2,12 +2,13 @@ package com.app.partssearchapp.screens.home
 
 import com.app.partssearchapp.data.models.Part
 import com.app.partssearchapp.data.models.VehicleMake
+import com.app.partssearchapp.data.service.PartWithListings
 import com.app.partssearchapp.screens.profile.ProfileParams
 
 data class HomeState(
   val popularMakes: List<VehicleMake> = emptyList(),
   val searchQuery: String = "",
-  val searchResults: List<Part> = emptyList(),
+  val searchResults: List<PartWithListings> = emptyList(),
   val isSearching: Boolean = false,
   val isLoading: Boolean = false,
 )
@@ -20,6 +21,7 @@ sealed class HomeUIEvent {
   data object NavigateToCart : HomeUIEvent()
   data object NavigateToVendorDashboard : HomeUIEvent()
   data class SearchResultClicked(val part: Part) : HomeUIEvent()
+  data object ClearSearch : HomeUIEvent()
 }
 
 sealed class HomeNavEvent {
@@ -31,6 +33,10 @@ sealed class HomeNavEvent {
   data class NavigateToVendorDashboard(val vendorId: Int) : HomeNavEvent()
   data object NavigateToLogin : HomeNavEvent()
   data class NavigateToProfile(val params: ProfileParams) : HomeNavEvent()
+  data class NavigateToPartDetail(
+    val partId: Int,
+    val partName: String,
+  ) : HomeNavEvent()
 }
 
 sealed class HomeUIEffect
