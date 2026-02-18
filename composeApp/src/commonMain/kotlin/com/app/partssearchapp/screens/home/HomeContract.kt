@@ -25,6 +25,7 @@ sealed class HomeUIEvent {
 sealed class HomeNavEvent {
   data class NavigateToVehicleSelection(
     val makeId: Int? = null,
+    val makeName: String? = null,
   ) : HomeNavEvent()
   data object NavigateToCart : HomeNavEvent()
   data class NavigateToVendorDashboard(val vendorId: Int) : HomeNavEvent()

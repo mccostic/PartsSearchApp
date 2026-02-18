@@ -26,7 +26,12 @@ fun HomeRouter(
           rootNavController.navigate(it.params)
         }
         is HomeNavEvent.NavigateToVehicleSelection -> {
-          rootNavController.navigate(VehicleSelectionParams())
+          rootNavController.navigate(
+            VehicleSelectionParams(
+              preselectedMakeId = it.makeId ?: -1,
+              preselectedMakeName = it.makeName ?: "",
+            )
+          )
         }
         is HomeNavEvent.NavigateToCart -> {
           rootNavController.navigate(CartParams())

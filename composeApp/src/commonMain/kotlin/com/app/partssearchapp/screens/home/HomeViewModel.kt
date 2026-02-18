@@ -78,8 +78,13 @@ class HomeViewModel(
   private suspend fun makeSelectedHandler() {
     uiEvents
       .filterIsInstance<HomeUIEvent.MakeSelected>()
-      .collect {
-        emitNavEvent(HomeNavEvent.NavigateToVehicleSelection())
+      .collect { event ->
+        emitNavEvent(
+          HomeNavEvent.NavigateToVehicleSelection(
+            makeId = event.make.id,
+            makeName = event.make.name,
+          )
+        )
       }
   }
 

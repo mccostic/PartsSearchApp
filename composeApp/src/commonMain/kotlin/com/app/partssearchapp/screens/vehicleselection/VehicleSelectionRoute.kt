@@ -9,6 +9,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VehicleSelectionParams(
   val fromScreen: String = "home",
+  val preselectedMakeId: Int = -1,
+  val preselectedMakeName: String = "",
 )
 
 @Composable

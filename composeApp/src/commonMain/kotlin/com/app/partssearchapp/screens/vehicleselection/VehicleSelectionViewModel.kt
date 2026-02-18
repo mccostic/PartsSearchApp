@@ -1,6 +1,8 @@
 package com.app.partssearchapp.screens.vehicleselection
 
 import com.app.partssearchapp.arch.BaseViewModel
+import com.app.partssearchapp.data.models.VehicleMake
+import com.app.partssearchapp.data.models.VehicleSelection
 import com.app.partssearchapp.data.service.PartsDataService
 import kotlinx.coroutines.flow.filterIsInstance
 
@@ -14,7 +16,11 @@ class VehicleSelectionViewModel(
 
   init {
     setupEventHandlers()
-    launch { loadMakes() }
+    if (params.preselectedMakeId > 0) {
+      launch { loadYearsForPreselectedMake() }
+    } else {
+      launch { loadMakes() }
+    }
   }
 
   private fun setupEventHandlers() {
@@ -24,6 +30,25 @@ class VehicleSelectionViewModel(
     launch { engineSelectedHandler() }
     launch { backStepHandler() }
     launch { goHomeHandler() }
+  }
+
+  private suspend fun loadYearsForPreselectedMake() {
+    val make = VehicleMake(id = params.preselectedMakeId, name = params.preselectedMakeName)
+    updateState { copy(isLoading = true) }
+    try {
+      val years = partsDataService.getYearsForMake(make.id)
+      updateState {
+        copy(
+          selection = VehicleSelection(make = make),
+          years = years,
+          currentStep = SelectionStep.YEAR,
+          isLoading = false,
+        )
+      }
+    } catch (e: Exception) {
+      updateState { copy(isLoading = false) }
+      showErrorSnackbar("Failed to load years")
+    }
   }
 
   private suspend fun loadMakes() {
