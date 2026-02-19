@@ -30,8 +30,6 @@ class VehicleSelectionViewModel(
     launch { engineSelectedHandler() }
     launch { makeSearchChangedHandler() }
     launch { modelSearchChangedHandler() }
-    launch { makeScrollChangedHandler() }
-    launch { modelScrollChangedHandler() }
     launch { backStepHandler() }
     launch { goHomeHandler() }
   }
@@ -172,22 +170,6 @@ class VehicleSelectionViewModel(
       }
   }
 
-  private suspend fun makeScrollChangedHandler() {
-    uiEvents
-      .filterIsInstance<VehicleSelectionUIEvent.MakeScrollChanged>()
-      .collect { event ->
-        updateState { copy(makeScrollIndex = event.index, makeScrollOffset = event.offset) }
-      }
-  }
-
-  private suspend fun modelScrollChangedHandler() {
-    uiEvents
-      .filterIsInstance<VehicleSelectionUIEvent.ModelScrollChanged>()
-      .collect { event ->
-        updateState { copy(modelScrollIndex = event.index, modelScrollOffset = event.offset) }
-      }
-  }
-
   private suspend fun backStepHandler() {
     uiEvents
       .filterIsInstance<VehicleSelectionUIEvent.BackStep>()
@@ -200,8 +182,6 @@ class VehicleSelectionViewModel(
               currentStep = SelectionStep.MAKE,
               models = emptyList(),
               modelSearchQuery = "",
-              modelScrollIndex = 0,
-              modelScrollOffset = 0,
             )
           }
           SelectionStep.YEAR -> updateState {

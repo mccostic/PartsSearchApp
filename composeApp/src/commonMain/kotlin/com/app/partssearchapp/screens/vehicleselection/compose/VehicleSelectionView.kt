@@ -3,8 +3,8 @@ package com.app.partssearchapp.screens.vehicleselection.compose
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -71,20 +71,14 @@ fun VehicleSelectionView(
           SelectionStep.MAKE -> MakeList(
             makes = state.makes,
             searchQuery = state.makeSearchQuery,
-            initialScrollIndex = state.makeScrollIndex,
-            initialScrollOffset = state.makeScrollOffset,
             onSearchChanged = { onEvent(VehicleSelectionUIEvent.MakeSearchChanged(it)) },
-            onScrollChanged = { index, offset -> onEvent(VehicleSelectionUIEvent.MakeScrollChanged(index, offset)) },
             onMakeSelected = { onEvent(VehicleSelectionUIEvent.MakeSelected(it)) }
           )
           SelectionStep.MODEL -> ModelList(
             models = state.models,
             makeName = state.selection.make?.name ?: "",
             searchQuery = state.modelSearchQuery,
-            initialScrollIndex = state.modelScrollIndex,
-            initialScrollOffset = state.modelScrollOffset,
             onSearchChanged = { onEvent(VehicleSelectionUIEvent.ModelSearchChanged(it)) },
-            onScrollChanged = { index, offset -> onEvent(VehicleSelectionUIEvent.ModelScrollChanged(index, offset)) },
             onModelSelected = { onEvent(VehicleSelectionUIEvent.ModelSelected(it)) }
           )
           SelectionStep.YEAR -> YearList(
@@ -152,10 +146,7 @@ private fun StepIndicator(currentStep: SelectionStep) {
 private fun MakeList(
   makes: List<com.app.partssearchapp.data.models.VehicleMake>,
   searchQuery: String,
-  initialScrollIndex: Int,
-  initialScrollOffset: Int,
   onSearchChanged: (String) -> Unit,
-  onScrollChanged: (index: Int, offset: Int) -> Unit,
   onMakeSelected: (com.app.partssearchapp.data.models.VehicleMake) -> Unit,
 ) {
   val filteredMakes = remember(makes, searchQuery) {
@@ -163,12 +154,7 @@ private fun MakeList(
     else makes.filter { it.name.contains(searchQuery, ignoreCase = true) }
   }
 
-  val listState = remember { LazyListState(initialScrollIndex, initialScrollOffset) }
-
-  LaunchedEffect(listState) {
-    snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-      .collect { (index, offset) -> onScrollChanged(index, offset) }
-  }
+  val listState = rememberLazyListState()
 
   LazyColumn(state = listState) {
     item {
@@ -233,10 +219,7 @@ private fun ModelList(
   models: List<com.app.partssearchapp.data.models.VehicleModel>,
   makeName: String,
   searchQuery: String,
-  initialScrollIndex: Int,
-  initialScrollOffset: Int,
   onSearchChanged: (String) -> Unit,
-  onScrollChanged: (index: Int, offset: Int) -> Unit,
   onModelSelected: (com.app.partssearchapp.data.models.VehicleModel) -> Unit,
 ) {
   val filteredModels = remember(models, searchQuery) {
@@ -244,12 +227,7 @@ private fun ModelList(
     else models.filter { it.name.contains(searchQuery, ignoreCase = true) }
   }
 
-  val listState = remember { LazyListState(initialScrollIndex, initialScrollOffset) }
-
-  LaunchedEffect(listState) {
-    snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-      .collect { (index, offset) -> onScrollChanged(index, offset) }
-  }
+  val listState = rememberLazyListState()
 
   LazyColumn(state = listState) {
     item {
