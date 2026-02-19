@@ -25,7 +25,7 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
 
   fun getModels(makeId: Int): List<VehicleModel> {
     val db = database ?: return emptyList()
-    return db.vpicQueries.getModels(makeId = makeId.toLong()).executeAsList().map { row ->
+    return db.vpicQueries.getModelsForMake(makeId = makeId.toLong()).executeAsList().map { row ->
       VehicleModel(
         id = row.id.toInt(),
         name = row.name,
@@ -82,6 +82,15 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
   ): String {
     val parts = mutableListOf<String>()
 
+      println("buildEngineDescription= displacementL= $displacementL")
+      println("buildEngineDescription= cylinders= $cylinders")
+      println("buildEngineDescription= engineConfig= $engineConfig")
+      println("buildEngineDescription= fuelType= $fuelType")
+      println("buildEngineDescription= turbo= $turbo")
+      println("buildEngineDescription= valveTrain= $valveTrain")
+      println("buildEngineDescription= horsepowerFrom= $horsepowerFrom")
+      println("buildEngineDescription= horsepowerTo= $horsepowerTo")
+
     displacementL?.let { parts.add("${it}L") }
 
     val cylinderConfig = when {
@@ -105,13 +114,14 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
 
     valveTrain?.let { parts.add(it) }
 
-    turbo?.let {
-      if (it.isNotBlank() && !it.equals("NA", ignoreCase = true) && !it.equals("N/A", ignoreCase = true)) {
-        parts.add(it)
+      turbo?.let {
+          if (it.isNotBlank() && !it.equals("NA", ignoreCase = true) && !it.equals("N/A", ignoreCase = true)) {
+              parts.add("Turbo")
+          }
       }
-    }
 
-    fuelType?.let {
+
+      fuelType?.let {
       if (it.contains("Diesel", ignoreCase = true)) {
         parts.add("Diesel")
       } else if (it.contains("Electric", ignoreCase = true) || it.contains("Hybrid", ignoreCase = true)) {
