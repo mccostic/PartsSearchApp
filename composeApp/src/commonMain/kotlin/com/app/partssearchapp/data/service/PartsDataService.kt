@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 interface PartsDataService {
   suspend fun getMakes(): List<VehicleMake>
   suspend fun getYearsForMake(makeId: Int): List<Int>
+  suspend fun getModelsForMake(makeId: Int): List<VehicleModel>
   suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel>
   suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int): List<VehicleEngine>
   suspend fun getCategoriesForEngine(engineId: Int): List<PartCategory>
@@ -26,6 +27,11 @@ class MockPartsDataService : PartsDataService {
   override suspend fun getYearsForMake(makeId: Int): List<Int> {
     delay(200)
     return yearsForMake[makeId] ?: emptyList()
+  }
+
+  override suspend fun getModelsForMake(makeId: Int): List<VehicleModel> {
+    delay(200)
+    return models.filter { it.makeId == makeId }.distinctBy { it.name }
   }
 
   override suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel> {

@@ -69,16 +69,19 @@ fun VehicleSelectionView(
         when (state.currentStep) {
           SelectionStep.MAKE -> MakeList(
             makes = state.makes,
+            searchQuery = state.makeSearchQuery,
+            onSearchChanged = { onEvent(VehicleSelectionUIEvent.MakeSearchChanged(it)) },
             onMakeSelected = { onEvent(VehicleSelectionUIEvent.MakeSelected(it)) }
-          )
-          SelectionStep.YEAR -> YearList(
-            years = state.years,
-            makeName = state.selection.make?.name ?: "",
-            onYearSelected = { onEvent(VehicleSelectionUIEvent.YearSelected(it)) }
           )
           SelectionStep.MODEL -> ModelList(
             models = state.models,
+            makeName = state.selection.make?.name ?: "",
             onModelSelected = { onEvent(VehicleSelectionUIEvent.ModelSelected(it)) }
+          )
+          SelectionStep.YEAR -> YearList(
+            years = state.years,
+            modelName = state.selection.model?.name ?: "",
+            onYearSelected = { onEvent(VehicleSelectionUIEvent.YearSelected(it)) }
           )
           SelectionStep.ENGINE -> EngineList(
             engines = state.engines,
@@ -92,7 +95,7 @@ fun VehicleSelectionView(
 
 @Composable
 private fun StepIndicator(currentStep: SelectionStep) {
-  val steps = listOf("Make", "Year", "Model", "Engine")
+  val steps = listOf("Make", "Model", "Year", "Engine")
   val currentIndex = currentStep.ordinal
 
   Row(
@@ -139,18 +142,58 @@ private fun StepIndicator(currentStep: SelectionStep) {
 @Composable
 private fun MakeList(
   makes: List<com.app.partssearchapp.data.models.VehicleMake>,
+  searchQuery: String,
+  onSearchChanged: (String) -> Unit,
   onMakeSelected: (com.app.partssearchapp.data.models.VehicleMake) -> Unit,
 ) {
+  val filteredMakes = remember(makes, searchQuery) {
+    if (searchQuery.isBlank()) makes
+    else makes.filter { it.name.contains(searchQuery, ignoreCase = true) }
+  }
+
   LazyColumn {
     item {
       Text(
         text = "Select Vehicle Make",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
       )
     }
-    items(makes) { make ->
+    item {
+      OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchChanged,
+        placeholder = { Text("Search makes...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+          if (searchQuery.isNotEmpty()) {
+            IconButton(onClick = { onSearchChanged("") }) {
+              Icon(Icons.Default.Clear, contentDescription = "Clear")
+            }
+          }
+        },
+        singleLine = true,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 16.dp, vertical = 4.dp),
+      )
+    }
+    if (filteredMakes.isEmpty() && searchQuery.isNotBlank()) {
+      item {
+        Box(
+          modifier = Modifier.fillMaxWidth().padding(32.dp),
+          contentAlignment = Alignment.Center,
+        ) {
+          Text(
+            text = "No makes found for \"$searchQuery\"",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+    }
+    items(filteredMakes) { make ->
       ListItem(
         headlineContent = { Text(make.name) },
         leadingContent = {
@@ -167,15 +210,69 @@ private fun MakeList(
 }
 
 @Composable
+private fun ModelList(
+  models: List<com.app.partssearchapp.data.models.VehicleModel>,
+  makeName: String,
+  onModelSelected: (com.app.partssearchapp.data.models.VehicleModel) -> Unit,
+) {
+  LazyColumn {
+    item {
+      Text(
+        text = "Select Model for $makeName",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(16.dp),
+      )
+    }
+    if (models.isEmpty()) {
+      item {
+        Box(
+          modifier = Modifier.fillMaxWidth().padding(32.dp),
+          contentAlignment = Alignment.Center,
+        ) {
+          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+              Icons.Default.SearchOff,
+              contentDescription = null,
+              modifier = Modifier.size(48.dp),
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+              text = "No models found for $makeName",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
+        }
+      }
+    }
+    items(models) { model ->
+      ListItem(
+        headlineContent = { Text(model.name) },
+        leadingContent = {
+          Icon(Icons.Default.DirectionsCar, contentDescription = null)
+        },
+        trailingContent = {
+          Icon(Icons.Default.ChevronRight, contentDescription = null)
+        },
+        modifier = Modifier.clickable { onModelSelected(model) }
+      )
+      HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+    }
+  }
+}
+
+@Composable
 private fun YearList(
   years: List<Int>,
-  makeName: String,
+  modelName: String,
   onYearSelected: (Int) -> Unit,
 ) {
   LazyColumn {
     item {
       Text(
-        text = "Select Year for $makeName",
+        text = "Select Year for $modelName",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(16.dp),
@@ -191,36 +288,6 @@ private fun YearList(
           Icon(Icons.Default.ChevronRight, contentDescription = null)
         },
         modifier = Modifier.clickable { onYearSelected(year) }
-      )
-      HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-    }
-  }
-}
-
-@Composable
-private fun ModelList(
-  models: List<com.app.partssearchapp.data.models.VehicleModel>,
-  onModelSelected: (com.app.partssearchapp.data.models.VehicleModel) -> Unit,
-) {
-  LazyColumn {
-    item {
-      Text(
-        text = "Select Model",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp),
-      )
-    }
-    items(models) { model ->
-      ListItem(
-        headlineContent = { Text(model.name) },
-        leadingContent = {
-          Icon(Icons.Default.DirectionsCar, contentDescription = null)
-        },
-        trailingContent = {
-          Icon(Icons.Default.ChevronRight, contentDescription = null)
-        },
-        modifier = Modifier.clickable { onModelSelected(model) }
       )
       HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
     }

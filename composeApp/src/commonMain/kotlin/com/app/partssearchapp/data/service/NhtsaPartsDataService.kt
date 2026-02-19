@@ -49,6 +49,22 @@ class NhtsaPartsDataService(
     return (2025 downTo 2000).toList()
   }
 
+  override suspend fun getModelsForMake(makeId: Int): List<VehicleModel> {
+    if (vpicLocalDataSource.isAvailable) {
+      val localModels = vpicLocalDataSource.getModels(makeId)
+      if (localModels.isNotEmpty()) {
+        return localModels
+      }
+    }
+
+    return try {
+      // Use current year for NHTSA API fallback
+      nhtsaApiClient.getModelsForMakeAndYear(makeId, 2025)
+    } catch (e: Exception) {
+      MockPartsDataService.models.filter { it.makeId == makeId }.distinctBy { it.name }
+    }
+  }
+
   override suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel> {
     if (vpicLocalDataSource.isAvailable) {
       val localModels = vpicLocalDataSource.getModels(makeId)

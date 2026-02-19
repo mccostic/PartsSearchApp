@@ -40,8 +40,8 @@ data class VehicleSelection(
     get() {
       val parts = mutableListOf<String>()
       make?.let { parts.add(it.name) }
-      year?.let { parts.add(it.toString()) }
       model?.let { parts.add(it.name) }
+      year?.let { parts.add(it.toString()) }
       engine?.let { parts.add(it.description) }
       return parts.joinToString(" > ")
     }
