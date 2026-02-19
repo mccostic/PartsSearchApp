@@ -56,10 +56,8 @@ fun VehicleSelectionView(
         }
       }
 
-      // Step indicator
-      StepIndicator(currentStep = state.currentStep)
-
       if (state.isLoading) {
+        StepIndicator(currentStep = state.currentStep)
         Box(
           modifier = Modifier.fillMaxSize(),
           contentAlignment = Alignment.Center
@@ -69,12 +67,14 @@ fun VehicleSelectionView(
       } else {
         when (state.currentStep) {
           SelectionStep.MAKE -> MakeList(
+            currentStep = state.currentStep,
             makes = state.makes,
             searchQuery = state.makeSearchQuery,
             onSearchChanged = { onEvent(VehicleSelectionUIEvent.MakeSearchChanged(it)) },
             onMakeSelected = { onEvent(VehicleSelectionUIEvent.MakeSelected(it)) }
           )
           SelectionStep.MODEL -> ModelList(
+            currentStep = state.currentStep,
             models = state.models,
             makeName = state.selection.make?.name ?: "",
             searchQuery = state.modelSearchQuery,
@@ -82,11 +82,13 @@ fun VehicleSelectionView(
             onModelSelected = { onEvent(VehicleSelectionUIEvent.ModelSelected(it)) }
           )
           SelectionStep.YEAR -> YearList(
+            currentStep = state.currentStep,
             years = state.years,
             modelName = state.selection.model?.name ?: "",
             onYearSelected = { onEvent(VehicleSelectionUIEvent.YearSelected(it)) }
           )
           SelectionStep.ENGINE -> EngineList(
+            currentStep = state.currentStep,
             engines = state.engines,
             onEngineSelected = { onEvent(VehicleSelectionUIEvent.EngineSelected(it)) }
           )
@@ -144,6 +146,7 @@ private fun StepIndicator(currentStep: SelectionStep) {
 
 @Composable
 private fun MakeList(
+  currentStep: SelectionStep,
   makes: List<com.app.partssearchapp.data.models.VehicleMake>,
   searchQuery: String,
   onSearchChanged: (String) -> Unit,
@@ -157,6 +160,7 @@ private fun MakeList(
   val listState = rememberLazyListState()
 
   LazyColumn(state = listState) {
+    item { StepIndicator(currentStep = currentStep) }
     item {
       Text(
         text = "Select Vehicle Make",
@@ -216,6 +220,7 @@ private fun MakeList(
 
 @Composable
 private fun ModelList(
+  currentStep: SelectionStep,
   models: List<com.app.partssearchapp.data.models.VehicleModel>,
   makeName: String,
   searchQuery: String,
@@ -230,6 +235,7 @@ private fun ModelList(
   val listState = rememberLazyListState()
 
   LazyColumn(state = listState) {
+    item { StepIndicator(currentStep = currentStep) }
     item {
       Text(
         text = "Select Model for $makeName",
@@ -311,11 +317,15 @@ private fun ModelList(
 
 @Composable
 private fun YearList(
+  currentStep: SelectionStep,
   years: List<Int>,
   modelName: String,
   onYearSelected: (Int) -> Unit,
 ) {
-  LazyColumn {
+  val listState = rememberLazyListState()
+
+  LazyColumn(state = listState) {
+    item { StepIndicator(currentStep = currentStep) }
     item {
       Text(
         text = "Select Year for $modelName",
@@ -342,10 +352,14 @@ private fun YearList(
 
 @Composable
 private fun EngineList(
+  currentStep: SelectionStep,
   engines: List<com.app.partssearchapp.data.models.VehicleEngine>,
   onEngineSelected: (com.app.partssearchapp.data.models.VehicleEngine) -> Unit,
 ) {
-  LazyColumn {
+  val listState = rememberLazyListState()
+
+  LazyColumn(state = listState) {
+    item { StepIndicator(currentStep = currentStep) }
     item {
       Text(
         text = "Select Engine",
