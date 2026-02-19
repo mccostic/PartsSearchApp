@@ -7,7 +7,7 @@ interface PartsDataService {
   suspend fun getMakes(): List<VehicleMake>
   suspend fun getYearsForMake(makeId: Int): List<Int>
   suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel>
-  suspend fun getEnginesForModel(modelId: Int): List<VehicleEngine>
+  suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int): List<VehicleEngine>
   suspend fun getCategoriesForEngine(engineId: Int): List<PartCategory>
   suspend fun getPartsForCategory(categoryId: Int, engineId: Int): List<Part>
   suspend fun getListingsForPart(partId: Int): List<VendorListing>
@@ -33,7 +33,7 @@ class MockPartsDataService : PartsDataService {
     return models.filter { it.makeId == makeId && it.year == year }
   }
 
-  override suspend fun getEnginesForModel(modelId: Int): List<VehicleEngine> {
+  override suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int): List<VehicleEngine> {
     delay(200)
     return engines.filter { it.modelId == modelId }
   }

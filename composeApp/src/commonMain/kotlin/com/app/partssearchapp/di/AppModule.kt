@@ -4,6 +4,8 @@ import com.app.partssearchapp.data.service.CartManager
 import com.app.partssearchapp.data.service.InventoryManager
 import com.app.partssearchapp.data.service.NhtsaPartsDataService
 import com.app.partssearchapp.data.service.PartsDataService
+import com.app.partssearchapp.data.service.VpicLocalDataSource
+import com.app.partssearchapp.database.DatabaseDriverFactory
 import com.app.partssearchapp.network.ApiClient
 import com.app.partssearchapp.network.MockApiClient
 import com.app.partssearchapp.network.nhtsa.NhtsaApiClient
@@ -34,7 +36,8 @@ val appModule = module {
     single<ApiClient> { MockApiClient() }
     single { NhtsaApiClient() }
     single { InventoryManager() }
-    single<PartsDataService> { NhtsaPartsDataService(get(), get()) }
+    single { VpicLocalDataSource(getOrNull()) }
+    single<PartsDataService> { NhtsaPartsDataService(get(), get(), get()) }
     single { CartManager(get()) }
     factory { AuthUseCase() }
 

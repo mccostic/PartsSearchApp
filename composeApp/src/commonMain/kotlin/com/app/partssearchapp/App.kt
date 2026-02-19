@@ -8,12 +8,14 @@ import com.app.partssearchapp.di.appModule
 import com.app.partssearchapp.global.CustomSnackbarHost
 import com.app.partssearchapp.global.GlobalPopupLayer
 import org.koin.compose.KoinApplication
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
 @Composable
 @Preview
-fun App() {
+fun App(platformModule: Module = module { }) {
     KoinApplication(application = {
-        modules(appModule)
+        modules(appModule, platformModule)
     }) {
         MaterialTheme {
             Scaffold(

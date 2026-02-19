@@ -5,18 +5,31 @@ import com.app.partssearchapp.network.nhtsa.NhtsaApiClient
 
 /**
  * PartsDataService implementation that uses:
- * - NHTSA vPIC API for vehicle data (makes, years, models)
+ * - VpicLocalDataSource (SQLite/SQLDelight) for vehicle data (makes, years, models, engines)
+ * - Falls back to NHTSA API / mock data if local DB is unavailable
  * - InventoryManager for live parts/vendor/listing data
  */
 class NhtsaPartsDataService(
   private val nhtsaApiClient: NhtsaApiClient,
   private val inventoryManager: InventoryManager,
+  private val vpicLocalDataSource: VpicLocalDataSource,
 ) : PartsDataService {
 
   private var cachedMakes: List<VehicleMake>? = null
 
   override suspend fun getMakes(): List<VehicleMake> {
     cachedMakes?.let { return it }
+
+    // Try local vPIC database first
+    if (vpicLocalDataSource.isAvailable) {
+      val localMakes = vpicLocalDataSource.getMakes()
+      if (localMakes.isNotEmpty()) {
+        cachedMakes = localMakes
+        return localMakes
+      }
+    }
+
+    // Fall back to NHTSA API
     return try {
       val makes = nhtsaApiClient.getAllMakes()
       cachedMakes = makes
@@ -27,10 +40,23 @@ class NhtsaPartsDataService(
   }
 
   override suspend fun getYearsForMake(makeId: Int): List<Int> {
+    if (vpicLocalDataSource.isAvailable) {
+      val localYears = vpicLocalDataSource.getYearsForMake(makeId)
+      if (localYears.isNotEmpty()) {
+        return localYears
+      }
+    }
     return (2025 downTo 2000).toList()
   }
 
   override suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel> {
+    if (vpicLocalDataSource.isAvailable) {
+      val localModels = vpicLocalDataSource.getModels(makeId)
+      if (localModels.isNotEmpty()) {
+        return localModels.map { it.copy(year = year) }
+      }
+    }
+
     return try {
       nhtsaApiClient.getModelsForMakeAndYear(makeId, year)
     } catch (e: Exception) {
@@ -38,7 +64,13 @@ class NhtsaPartsDataService(
     }
   }
 
-  override suspend fun getEnginesForModel(modelId: Int): List<VehicleEngine> {
+  override suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int): List<VehicleEngine> {
+    if (vpicLocalDataSource.isAvailable) {
+      val localEngines = vpicLocalDataSource.getEngineSpecs(makeId, year, modelId)
+      if (localEngines.isNotEmpty()) {
+        return localEngines
+      }
+    }
     return getCommonEnginesForModel(modelId)
   }
 

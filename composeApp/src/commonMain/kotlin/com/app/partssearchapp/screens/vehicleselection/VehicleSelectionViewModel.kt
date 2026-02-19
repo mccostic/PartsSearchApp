@@ -114,9 +114,11 @@ class VehicleSelectionViewModel(
     uiEvents
       .filterIsInstance<VehicleSelectionUIEvent.ModelSelected>()
       .collect { event ->
+        val makeId = currentState.selection.make?.id ?: return@collect
+        val year = currentState.selection.year ?: return@collect
         updateState { copy(isLoading = true) }
         try {
-          val engines = partsDataService.getEnginesForModel(event.model.id)
+          val engines = partsDataService.getEnginesForModel(makeId, year, event.model.id)
           updateState {
             copy(
               selection = selection.copy(model = event.model, engine = null),
