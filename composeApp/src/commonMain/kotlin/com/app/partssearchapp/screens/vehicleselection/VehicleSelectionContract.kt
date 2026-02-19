@@ -11,6 +11,7 @@ data class VehicleSelectionState(
   val currentStep: SelectionStep = SelectionStep.MAKE,
   val isLoading: Boolean = false,
   val makeSearchQuery: String = "",
+  val modelSearchQuery: String = "",
 )
 
 enum class SelectionStep {
@@ -23,6 +24,7 @@ sealed class VehicleSelectionUIEvent {
   data class YearSelected(val year: Int) : VehicleSelectionUIEvent()
   data class EngineSelected(val engine: VehicleEngine) : VehicleSelectionUIEvent()
   data class MakeSearchChanged(val query: String) : VehicleSelectionUIEvent()
+  data class ModelSearchChanged(val query: String) : VehicleSelectionUIEvent()
   data object BackStep : VehicleSelectionUIEvent()
   data object GoHome : VehicleSelectionUIEvent()
 }

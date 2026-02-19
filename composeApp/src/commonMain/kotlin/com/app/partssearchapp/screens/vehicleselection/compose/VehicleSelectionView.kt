@@ -76,6 +76,8 @@ fun VehicleSelectionView(
           SelectionStep.MODEL -> ModelList(
             models = state.models,
             makeName = state.selection.make?.name ?: "",
+            searchQuery = state.modelSearchQuery,
+            onSearchChanged = { onEvent(VehicleSelectionUIEvent.ModelSearchChanged(it)) },
             onModelSelected = { onEvent(VehicleSelectionUIEvent.ModelSelected(it)) }
           )
           SelectionStep.YEAR -> YearList(
@@ -213,18 +215,57 @@ private fun MakeList(
 private fun ModelList(
   models: List<com.app.partssearchapp.data.models.VehicleModel>,
   makeName: String,
+  searchQuery: String,
+  onSearchChanged: (String) -> Unit,
   onModelSelected: (com.app.partssearchapp.data.models.VehicleModel) -> Unit,
 ) {
+  val filteredModels = remember(models, searchQuery) {
+    if (searchQuery.isBlank()) models
+    else models.filter { it.name.contains(searchQuery, ignoreCase = true) }
+  }
+
   LazyColumn {
     item {
       Text(
         text = "Select Model for $makeName",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
       )
     }
-    if (models.isEmpty()) {
+    item {
+      OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchChanged,
+        placeholder = { Text("Search models...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+          if (searchQuery.isNotEmpty()) {
+            IconButton(onClick = { onSearchChanged("") }) {
+              Icon(Icons.Default.Clear, contentDescription = "Clear")
+            }
+          }
+        },
+        singleLine = true,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 16.dp, vertical = 4.dp),
+      )
+    }
+    if (filteredModels.isEmpty() && searchQuery.isNotBlank()) {
+      item {
+        Box(
+          modifier = Modifier.fillMaxWidth().padding(32.dp),
+          contentAlignment = Alignment.Center,
+        ) {
+          Text(
+            text = "No models found for \"$searchQuery\"",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+    } else if (filteredModels.isEmpty()) {
       item {
         Box(
           modifier = Modifier.fillMaxWidth().padding(32.dp),
@@ -247,7 +288,7 @@ private fun ModelList(
         }
       }
     }
-    items(models) { model ->
+    items(filteredModels) { model ->
       ListItem(
         headlineContent = { Text(model.name) },
         leadingContent = {

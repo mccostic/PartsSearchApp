@@ -29,6 +29,7 @@ class VehicleSelectionViewModel(
     launch { yearSelectedHandler() }
     launch { engineSelectedHandler() }
     launch { makeSearchChangedHandler() }
+    launch { modelSearchChangedHandler() }
     launch { backStepHandler() }
     launch { goHomeHandler() }
   }
@@ -67,7 +68,7 @@ class VehicleSelectionViewModel(
     uiEvents
       .filterIsInstance<VehicleSelectionUIEvent.MakeSelected>()
       .collect { event ->
-        updateState { copy(isLoading = true, makeSearchQuery = "") }
+        updateState { copy(isLoading = true) }
         try {
           val models = partsDataService.getModelsForMake(event.make.id)
           updateState {
@@ -102,6 +103,7 @@ class VehicleSelectionViewModel(
               engines = emptyList(),
               currentStep = SelectionStep.YEAR,
               isLoading = false,
+              modelSearchQuery = "",
             )
           }
         } catch (e: Exception) {
@@ -160,6 +162,14 @@ class VehicleSelectionViewModel(
       }
   }
 
+  private suspend fun modelSearchChangedHandler() {
+    uiEvents
+      .filterIsInstance<VehicleSelectionUIEvent.ModelSearchChanged>()
+      .collect { event ->
+        updateState { copy(modelSearchQuery = event.query) }
+      }
+  }
+
   private suspend fun backStepHandler() {
     uiEvents
       .filterIsInstance<VehicleSelectionUIEvent.BackStep>()
@@ -171,7 +181,7 @@ class VehicleSelectionViewModel(
               selection = selection.copy(make = null),
               currentStep = SelectionStep.MAKE,
               models = emptyList(),
-              makeSearchQuery = "",
+              modelSearchQuery = "",
             )
           }
           SelectionStep.YEAR -> updateState {
