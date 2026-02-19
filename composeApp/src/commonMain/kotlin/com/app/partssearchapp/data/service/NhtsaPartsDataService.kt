@@ -8,6 +8,9 @@ import com.app.partssearchapp.network.nhtsa.NhtsaApiClient
  * - VpicLocalDataSource (SQLite/SQLDelight) for vehicle data (makes, years, models, engines)
  * - Falls back to NHTSA API / mock data if local DB is unavailable
  * - InventoryManager for live parts/vendor/listing data
+ *
+ * Tracks which data source provided makes to ensure consistent ID usage
+ * across subsequent lookups (models, years, engines).
  */
 class NhtsaPartsDataService(
   private val nhtsaApiClient: NhtsaApiClient,
@@ -17,6 +20,9 @@ class NhtsaPartsDataService(
 
   private var cachedMakes: List<VehicleMake>? = null
 
+  private enum class DataSource { VPIC, API, MOCK }
+  private var activeSource: DataSource = DataSource.MOCK
+
   override suspend fun getMakes(): List<VehicleMake> {
     cachedMakes?.let { return it }
 
@@ -25,67 +31,85 @@ class NhtsaPartsDataService(
       val localMakes = vpicLocalDataSource.getMakes()
       if (localMakes.isNotEmpty()) {
         cachedMakes = localMakes
+        activeSource = DataSource.VPIC
         return localMakes
       }
     }
 
-    // Fall back to NHTSA API
+    // Try NHTSA API
     return try {
       val makes = nhtsaApiClient.getAllMakes()
-      cachedMakes = makes
-      makes
+      if (makes.isNotEmpty()) {
+        cachedMakes = makes
+        activeSource = DataSource.API
+        makes
+      } else {
+        cachedMakes = MockPartsDataService.makes
+        activeSource = DataSource.MOCK
+        MockPartsDataService.makes
+      }
     } catch (e: Exception) {
+      cachedMakes = MockPartsDataService.makes
+      activeSource = DataSource.MOCK
       MockPartsDataService.makes
     }
   }
 
   override suspend fun getYearsForMake(makeId: Int): List<Int> {
-    if (vpicLocalDataSource.isAvailable) {
+    if (activeSource == DataSource.VPIC && vpicLocalDataSource.isAvailable) {
       val localYears = vpicLocalDataSource.getYearsForMake(makeId)
-      if (localYears.isNotEmpty()) {
-        return localYears
-      }
+      if (localYears.isNotEmpty()) return localYears
     }
     return (2025 downTo 2000).toList()
   }
 
   override suspend fun getModelsForMake(makeId: Int): List<VehicleModel> {
-    if (vpicLocalDataSource.isAvailable) {
-      val localModels = vpicLocalDataSource.getModels(makeId)
-      if (localModels.isNotEmpty()) {
-        return localModels
+    // Use the same data source that provided the makes
+    when (activeSource) {
+      DataSource.VPIC -> {
+        val localModels = vpicLocalDataSource.getModels(makeId)
+        if (localModels.isNotEmpty()) return localModels
+      }
+      DataSource.API -> {
+        try {
+          val models = nhtsaApiClient.getModelsForMakeAndYear(makeId, 2025)
+          if (models.isNotEmpty()) return models
+        } catch (_: Exception) {}
+      }
+      DataSource.MOCK -> {
+        // Fall through to mock below
       }
     }
 
-    return try {
-      // Use current year for NHTSA API fallback
-      nhtsaApiClient.getModelsForMakeAndYear(makeId, 2025)
-    } catch (e: Exception) {
-      MockPartsDataService.models.filter { it.makeId == makeId }.distinctBy { it.name }
-    }
+    return MockPartsDataService.models
+      .filter { it.makeId == makeId }
+      .distinctBy { it.name }
   }
 
   override suspend fun getModelsForMakeAndYear(makeId: Int, year: Int): List<VehicleModel> {
-    if (vpicLocalDataSource.isAvailable) {
-      val localModels = vpicLocalDataSource.getModels(makeId)
-      if (localModels.isNotEmpty()) {
-        return localModels.map { it.copy(year = year) }
+    when (activeSource) {
+      DataSource.VPIC -> {
+        val localModels = vpicLocalDataSource.getModels(makeId)
+        if (localModels.isNotEmpty()) return localModels.map { it.copy(year = year) }
+      }
+      DataSource.API -> {
+        try {
+          val models = nhtsaApiClient.getModelsForMakeAndYear(makeId, year)
+          if (models.isNotEmpty()) return models
+        } catch (_: Exception) {}
+      }
+      DataSource.MOCK -> {
+        // Fall through to mock below
       }
     }
 
-    return try {
-      nhtsaApiClient.getModelsForMakeAndYear(makeId, year)
-    } catch (e: Exception) {
-      MockPartsDataService.models.filter { it.makeId == makeId && it.year == year }
-    }
+    return MockPartsDataService.models.filter { it.makeId == makeId && it.year == year }
   }
 
   override suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int): List<VehicleEngine> {
-    if (vpicLocalDataSource.isAvailable) {
+    if (activeSource == DataSource.VPIC && vpicLocalDataSource.isAvailable) {
       val localEngines = vpicLocalDataSource.getEngineSpecs(makeId, year, modelId)
-      if (localEngines.isNotEmpty()) {
-        return localEngines
-      }
+      if (localEngines.isNotEmpty()) return localEngines
     }
     return getCommonEnginesForModel(modelId)
   }
