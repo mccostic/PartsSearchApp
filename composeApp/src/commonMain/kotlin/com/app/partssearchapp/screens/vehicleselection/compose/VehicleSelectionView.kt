@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -153,7 +154,9 @@ private fun MakeList(
     else makes.filter { it.name.contains(searchQuery, ignoreCase = true) }
   }
 
-  LazyColumn {
+  val listState = rememberLazyListState()
+
+  LazyColumn(state = listState) {
     item {
       Text(
         text = "Select Vehicle Make",
@@ -224,7 +227,9 @@ private fun ModelList(
     else models.filter { it.name.contains(searchQuery, ignoreCase = true) }
   }
 
-  LazyColumn {
+  val listState = rememberLazyListState()
+
+  LazyColumn(state = listState) {
     item {
       Text(
         text = "Select Model for $makeName",
