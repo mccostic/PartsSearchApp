@@ -15,7 +15,7 @@ env:
   JAVA_VERSION: "17"
 
 jobs:
-  # ── Lint & Format Check ────────────────────────────────────────────────────
+  # ── 1. Lint & Format Check ────────────────────────────────────────────────────
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -33,12 +33,14 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Run Ktlint Check
-        run: ./gradlew :composeApp:ktlintCheck
+        run: ./gradlew :composeApp:ktlintCheck --continue
 
       - name: Run Detekt
-        run: ./gradlew :composeApp:detekt
+        run: ./gradlew :composeApp:detekt --continue
 
       - name: Upload Detekt Report
         if: always()
@@ -48,12 +50,12 @@ jobs:
           path: composeApp/build/reports/detekt/
           retention-days: 14
 
-  # ── Unit Tests ─────────────────────────────────────────────────────────────
+  # ── 2. Unit Tests ─────────────────────────────────────────────────────────────
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: lint
+    needs: lint # Starts after linting passes
 
     steps:
       - name: Checkout
@@ -67,6 +69,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Run Unit Tests
         run: ./gradlew :composeApp:testDebugUnitTest
@@ -79,21 +83,12 @@ jobs:
           path: composeApp/build/reports/tests/
           retention-days: 14
 
-      - name: Test Report Summary
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Unit Test Results
-          path: composeApp/build/test-results/**/TEST-*.xml
-          reporter: java-junit
-        continue-on-error: true
-
-  # ── Test Coverage ──────────────────────────────────────────────────────────
+  # ── 3. Test Coverage ──────────────────────────────────────────────────────────
   coverage:
     name: Test Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: test
+    needs: test # Starts only after tests pass
 
     steps:
       - name: Checkout
@@ -107,6 +102,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Generate Coverage Report
         run: ./gradlew :composeApp:koverHtmlReport :composeApp:koverXmlReport
@@ -114,20 +111,13 @@ jobs:
       - name: Verify Coverage Threshold
         run: ./gradlew :composeApp:koverVerify
 
-      - name: Upload Coverage Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: composeApp/build/reports/kover/
-          retention-days: 14
-
-  # ── Build Android Debug ───────────────────────────────────────────────────
+  # ── 4. Android Build ──────────────────────────────────────────────────────────
   build:
-    name: Build Android Debug
+    name: Build Android APK
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [lint, test, coverage]
+    # THIS IS THE KEY CHANGE: Now waits for lint, tests, AND coverage
+    needs: [ lint, test, coverage ]
 
     steps:
       - name: Checkout
@@ -141,6 +131,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Build Android Debug
         run: ./gradlew :composeApp:assembleDebug
@@ -152,12 +144,13 @@ jobs:
           path: composeApp/build/outputs/apk/debug/*.apk
           retention-days: 7
 
-  # ── iOS Framework Build ───────────────────────────────────────────────────
+  # ── 5. iOS Framework Check ────────────────────────────────────────────────────
   ios-build:
-    name: Build iOS Framework
+    name: iOS Framework
     runs-on: macos-latest
     timeout-minutes: 30
-    needs: [lint, test, coverage]
+    # Also waits for quality gates before starting expensive macOS runners
+    needs: [ lint, test, coverage ]
 
     steps:
       - name: Checkout
@@ -175,26 +168,22 @@ jobs:
       - name: Build iOS Framework
         run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
 
-  # ── Final CI Status ───────────────────────────────────────────────────────
+  # ── Final Status ───────────────────────────────────────────────────────────
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
     if: always()
-    needs: [lint, test, coverage, build, ios-build]
+    needs: [ lint, test, coverage, build, ios-build ]
 
     steps:
       - name: Check CI Status
         run: |
-          FAILED=0
-          for job in lint test coverage build ios-build; do
-            if [[ "${{ needs[$job].result }}" == "failure" ]]; then
-              FAILED=1
-            fi
-          done
-
-          if [[ $FAILED -eq 1 ]]; then
+          if [[ "${{ needs.lint.result }}" == "failure" || \
+                "${{ needs.test.result }}" == "failure" || \
+                "${{ needs.coverage.result }}" == "failure" || \
+                "${{ needs.build.result }}" == "failure" || \
+                "${{ needs.ios-build.result }}" == "failure" ]]; then
             echo "::error::CI pipeline failed"
             exit 1
           fi
-
           echo "CI pipeline passed successfully"
