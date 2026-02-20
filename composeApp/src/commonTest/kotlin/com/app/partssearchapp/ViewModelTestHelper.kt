@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
@@ -59,3 +60,15 @@ fun <T> TestScope.collectEvents(flow: SharedFlow<T>): Pair<MutableList<T>, kotli
     }
     return events to job
 }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+suspend fun <T> TestScope.collectUntilIdle(flow: SharedFlow<T>): List<T> {
+    val events = mutableListOf<T>()
+    val job = launch(UnconfinedTestDispatcher(testScheduler)) {
+        flow.collect { events.add(it) }
+    }
+    advanceUntilIdle()
+    job.cancel()
+    return events
+}
+
