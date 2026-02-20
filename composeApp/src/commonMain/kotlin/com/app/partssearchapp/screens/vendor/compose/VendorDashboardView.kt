@@ -45,12 +45,16 @@ fun VendorDashboardView(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TabRow(selectedTabIndex = state.selectedTab.ordinal) {
+            PrimaryScrollableTabRow(
+                selectedTabIndex = state.selectedTab.ordinal
+            ) {
                 VendorTab.entries.forEach { tab ->
                     Tab(
-                        selected = state.selectedTab == tab,
-                        onClick = { onEvent(VendorDashboardUIEvent.TabSelected(tab)) },
-                        text = { Text(tab.label) },
+                        selected = tab == state.selectedTab,
+                        onClick = {
+                            onEvent(VendorDashboardUIEvent.TabSelected(tab))
+                        },
+                        text = { Text(tab.label) }
                     )
                 }
             }
@@ -589,6 +593,7 @@ private fun AddListingDialog(
                     expanded = showPartDropdown,
                     onExpandedChange = { showPartDropdown = it },
                 ) {
+                    val fillMaxWidth = Modifier.fillMaxWidth()
                     OutlinedTextField(
                         value = selectedPart?.let { "${it.name} (${it.partNumber})" } ?: partSearchQuery,
                         onValueChange = {
@@ -597,7 +602,7 @@ private fun AddListingDialog(
                             showPartDropdown = true
                         },
                         label = { Text("Select Part") },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        modifier = fillMaxWidth.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
                         singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showPartDropdown) },
                     )
@@ -887,9 +892,8 @@ private fun OrderCard(order: Order, onUpdateStatus: (OrderStatus) -> Unit,) {
                         OrderStatus.CONFIRMED -> OrderStatus.PROCESSING
                         OrderStatus.PROCESSING -> OrderStatus.SHIPPED
                         OrderStatus.SHIPPED -> OrderStatus.DELIVERED
-                        else -> null
                     }
-                    nextStatus?.let { status ->
+                    nextStatus.let { status ->
                         Button(onClick = { onUpdateStatus(status) }, modifier = Modifier.weight(1f)) {
                             Text("Mark as ${status.name}")
                         }

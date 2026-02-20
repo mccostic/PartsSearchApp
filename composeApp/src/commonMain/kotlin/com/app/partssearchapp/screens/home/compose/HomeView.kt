@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -70,7 +71,8 @@ fun HomeView(state: HomeState, onEvent: (HomeUIEvent) -> Unit, uiEffects: Flow<H
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "${state.searchResults.size} part${if (state.searchResults.size > 1) "s" else ""} found",
+                            text = "${state.searchResults.size} part${
+                                if (state.searchResults.size > 1) "s" else ""} found",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -448,7 +450,7 @@ private fun HowItWorksSection() {
             stepNumber = 3,
             title = "Compare Vendors",
             description = "See prices from multiple vendors across Accra, Kumasi, Tema, and more",
-            icon = Icons.Default.CompareArrows,
+            icon = Icons.AutoMirrored.Filled.CompareArrows,
         )
         StepCard(
             stepNumber = 4,

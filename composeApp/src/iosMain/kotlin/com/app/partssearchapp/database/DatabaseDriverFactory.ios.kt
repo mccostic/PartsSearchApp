@@ -2,6 +2,7 @@ package com.app.partssearchapp.database
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSBundle
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
@@ -9,6 +10,7 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
 actual class DatabaseDriverFactory {
+    @OptIn(ExperimentalForeignApi::class)
     actual fun createDriver(): SqlDriver {
         val dbName = "vpic_lite.db"
         val documentsPath = NSSearchPathForDirectoriesInDomains(
