@@ -199,8 +199,8 @@ style:
     ignoreAnnotated:
       - 'Composable'
   MaxLineLength:
-    active: true
-    maxLineLength: 160
+    active: false
+    maxLineLength: 120
     excludePackageStatements: true
     excludeImportStatements: true
     excludeCommentStatements: true

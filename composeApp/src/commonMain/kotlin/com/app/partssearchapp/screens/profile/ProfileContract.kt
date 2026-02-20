@@ -78,5 +78,9 @@ sealed class ProfileNavEvent {
  * Profile-specific UI Effects
  */
 sealed class ProfileUIEffect {
-    data class ShowConfirmationDialog(val title: String, val message: String, val onConfirm: () -> Unit) : ProfileUIEffect()
+    data class ShowConfirmationDialog(
+        val title: String,
+        val message: String,
+        val onConfirm: () -> Unit
+    ) : ProfileUIEffect()
 }

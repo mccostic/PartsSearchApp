@@ -47,7 +47,12 @@ sealed class VendorDashboardUIEvent {
     ) : VendorDashboardUIEvent()
     data class ShowEditListing(val listing: VendorListing) : VendorDashboardUIEvent()
     data object DismissEditListing : VendorDashboardUIEvent()
-    data class UpdateListing(val listingId: Int, val price: Double, val stockQuantity: Int, val inStock: Boolean,) : VendorDashboardUIEvent()
+    data class UpdateListing(
+        val listingId: Int,
+        val price: Double,
+        val stockQuantity: Int,
+        val inStock: Boolean,
+    ) : VendorDashboardUIEvent()
     data class RemoveListing(val listingId: Int) : VendorDashboardUIEvent()
     data class InventorySearchChanged(val query: String) : VendorDashboardUIEvent()
 }

@@ -118,7 +118,8 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
         }
 
         val hp = when {
-            horsepowerFrom != null && horsepowerTo != null &&
+            horsepowerFrom != null &&
+                horsepowerTo != null &&
                 horsepowerFrom != horsepowerTo -> "$horsepowerFrom-${horsepowerTo}hp"
             horsepowerFrom != null -> "${horsepowerFrom}hp"
             else -> null
