@@ -5,140 +5,142 @@ import kotlin.test.*
 
 class CartManagerTest {
 
-  private lateinit var inventoryManager: InventoryManager
-  private lateinit var cartManager: CartManager
+    private lateinit var inventoryManager: InventoryManager
+    private lateinit var cartManager: CartManager
 
-  private val listing1 = VendorListing(1, 1, 1, "Vendor A", "BRAND", "PN-001", 100.0, "GHS", true, 10)
-  private val listing2 = VendorListing(2, 2, 1, "Vendor A", "BRAND", "PN-002", 50.0, "GHS", true, 5)
+    private val listing1 =
+        VendorListing(1, 1, 1, "Vendor A", "BRAND", "PN-001", 100.0, "GHS", true, 10)
+    private val listing2 =
+        VendorListing(2, 2, 1, "Vendor A", "BRAND", "PN-002", 50.0, "GHS", true, 5)
 
-  @BeforeTest
-  fun setup() {
-    inventoryManager = InventoryManager()
-    cartManager = CartManager(inventoryManager)
-  }
+    @BeforeTest
+    fun setup() {
+        inventoryManager = InventoryManager()
+        cartManager = CartManager(inventoryManager)
+    }
 
-  @Test
-  fun addToCartAddsNewItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
+    @Test
+    fun addToCartAddsNewItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
 
-    assertEquals(1, cartManager.cartItems.value.size)
-    assertEquals("Brake Pad", cartManager.cartItems.value.first().partName)
-    assertEquals(1, cartManager.cartItems.value.first().quantity)
-  }
+        assertEquals(1, cartManager.cartItems.value.size)
+        assertEquals("Brake Pad", cartManager.cartItems.value.first().partName)
+        assertEquals(1, cartManager.cartItems.value.first().quantity)
+    }
 
-  @Test
-  fun addToCartIncreasesQuantityForExistingItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    cartManager.addToCart(listing1, "Brake Pad")
+    @Test
+    fun addToCartIncreasesQuantityForExistingItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        cartManager.addToCart(listing1, "Brake Pad")
 
-    assertEquals(1, cartManager.cartItems.value.size)
-    assertEquals(2, cartManager.cartItems.value.first().quantity)
-  }
+        assertEquals(1, cartManager.cartItems.value.size)
+        assertEquals(2, cartManager.cartItems.value.first().quantity)
+    }
 
-  @Test
-  fun addDifferentItemsAddsMultiple() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    cartManager.addToCart(listing2, "Oil Filter")
+    @Test
+    fun addDifferentItemsAddsMultiple() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        cartManager.addToCart(listing2, "Oil Filter")
 
-    assertEquals(2, cartManager.cartItems.value.size)
-  }
+        assertEquals(2, cartManager.cartItems.value.size)
+    }
 
-  @Test
-  fun removeFromCartRemovesItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    val itemId = cartManager.cartItems.value.first().id
+    @Test
+    fun removeFromCartRemovesItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        val itemId = cartManager.cartItems.value.first().id
 
-    cartManager.removeFromCart(itemId)
+        cartManager.removeFromCart(itemId)
 
-    assertTrue(cartManager.cartItems.value.isEmpty())
-  }
+        assertTrue(cartManager.cartItems.value.isEmpty())
+    }
 
-  @Test
-  fun removeNonExistentItemDoesNothing() {
-    cartManager.addToCart(listing1, "Brake Pad")
+    @Test
+    fun removeNonExistentItemDoesNothing() {
+        cartManager.addToCart(listing1, "Brake Pad")
 
-    cartManager.removeFromCart(999)
+        cartManager.removeFromCart(999)
 
-    assertEquals(1, cartManager.cartItems.value.size)
-  }
+        assertEquals(1, cartManager.cartItems.value.size)
+    }
 
-  @Test
-  fun updateQuantityUpdatesItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    val itemId = cartManager.cartItems.value.first().id
+    @Test
+    fun updateQuantityUpdatesItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        val itemId = cartManager.cartItems.value.first().id
 
-    cartManager.updateQuantity(itemId, 5)
+        cartManager.updateQuantity(itemId, 5)
 
-    assertEquals(5, cartManager.cartItems.value.first().quantity)
-  }
+        assertEquals(5, cartManager.cartItems.value.first().quantity)
+    }
 
-  @Test
-  fun updateQuantityToZeroRemovesItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    val itemId = cartManager.cartItems.value.first().id
+    @Test
+    fun updateQuantityToZeroRemovesItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        val itemId = cartManager.cartItems.value.first().id
 
-    cartManager.updateQuantity(itemId, 0)
+        cartManager.updateQuantity(itemId, 0)
 
-    assertTrue(cartManager.cartItems.value.isEmpty())
-  }
+        assertTrue(cartManager.cartItems.value.isEmpty())
+    }
 
-  @Test
-  fun updateQuantityToNegativeRemovesItem() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    val itemId = cartManager.cartItems.value.first().id
+    @Test
+    fun updateQuantityToNegativeRemovesItem() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        val itemId = cartManager.cartItems.value.first().id
 
-    cartManager.updateQuantity(itemId, -1)
+        cartManager.updateQuantity(itemId, -1)
 
-    assertTrue(cartManager.cartItems.value.isEmpty())
-  }
+        assertTrue(cartManager.cartItems.value.isEmpty())
+    }
 
-  @Test
-  fun clearCartRemovesAllItems() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    cartManager.addToCart(listing2, "Oil Filter")
-    assertEquals(2, cartManager.cartItems.value.size)
+    @Test
+    fun clearCartRemovesAllItems() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        cartManager.addToCart(listing2, "Oil Filter")
+        assertEquals(2, cartManager.cartItems.value.size)
 
-    cartManager.clearCart()
+        cartManager.clearCart()
 
-    assertTrue(cartManager.cartItems.value.isEmpty())
-  }
+        assertTrue(cartManager.cartItems.value.isEmpty())
+    }
 
-  @Test
-  fun itemCountSumsQuantities() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    cartManager.addToCart(listing1, "Brake Pad") // quantity 2
-    cartManager.addToCart(listing2, "Oil Filter") // quantity 1
+    @Test
+    fun itemCountSumsQuantities() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        cartManager.addToCart(listing1, "Brake Pad") // quantity 2
+        cartManager.addToCart(listing2, "Oil Filter") // quantity 1
 
-    assertEquals(3, cartManager.itemCount)
-  }
+        assertEquals(3, cartManager.itemCount)
+    }
 
-  @Test
-  fun totalPriceSumsCorrectly() {
-    cartManager.addToCart(listing1, "Brake Pad") // 100.0
-    cartManager.addToCart(listing2, "Oil Filter") // 50.0
+    @Test
+    fun totalPriceSumsCorrectly() {
+        cartManager.addToCart(listing1, "Brake Pad") // 100.0
+        cartManager.addToCart(listing2, "Oil Filter") // 50.0
 
-    assertEquals(150.0, cartManager.totalPrice)
-  }
+        assertEquals(150.0, cartManager.totalPrice)
+    }
 
-  @Test
-  fun totalPriceWithMultipleQuantities() {
-    cartManager.addToCart(listing1, "Brake Pad")
-    cartManager.addToCart(listing1, "Brake Pad") // 100 * 2 = 200
-    cartManager.addToCart(listing2, "Oil Filter") // 50 * 1 = 50
+    @Test
+    fun totalPriceWithMultipleQuantities() {
+        cartManager.addToCart(listing1, "Brake Pad")
+        cartManager.addToCart(listing1, "Brake Pad") // 100 * 2 = 200
+        cartManager.addToCart(listing2, "Oil Filter") // 50 * 1 = 50
 
-    assertEquals(250.0, cartManager.totalPrice)
-  }
+        assertEquals(250.0, cartManager.totalPrice)
+    }
 
-  @Test
-  fun checkoutClearsCartAndDeductsStock() {
-    cartManager.addToCart(listing1, "Brake Pad")
+    @Test
+    fun checkoutClearsCartAndDeductsStock() {
+        cartManager.addToCart(listing1, "Brake Pad")
 
-    val initialStock = inventoryManager.listings.value.find { it.id == 1 }?.stockQuantity ?: 0
+        val initialStock = inventoryManager.listings.value.find { it.id == 1 }?.stockQuantity ?: 0
 
-    cartManager.checkout()
+        cartManager.checkout()
 
-    assertTrue(cartManager.cartItems.value.isEmpty())
-    val updatedStock = inventoryManager.listings.value.find { it.id == 1 }?.stockQuantity ?: 0
-    assertEquals(initialStock - 1, updatedStock)
-  }
+        assertTrue(cartManager.cartItems.value.isEmpty())
+        val updatedStock = inventoryManager.listings.value.find { it.id == 1 }?.stockQuantity ?: 0
+        assertEquals(initialStock - 1, updatedStock)
+    }
 }
