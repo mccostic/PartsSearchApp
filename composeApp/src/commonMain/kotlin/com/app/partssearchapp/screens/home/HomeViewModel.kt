@@ -1,28 +1,14 @@
 package com.app.partssearchapp.screens.home
 
 import com.app.partssearchapp.arch.BaseViewModel
-import com.app.partssearchapp.global.GlobalPopupCenter
-import com.app.partssearchapp.global.overlayPopup
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.graphics.Color
-import com.app.partssearchapp.global.GlobalSnackbarCenter
-import com.app.partssearchapp.screens.home.data.RepositoryService
-import com.app.partssearchapp.screens.profile.ProfileListener
-import com.app.partssearchapp.screens.profile.ProfileParams
-import kotlinx.coroutines.delay
+import com.app.partssearchapp.data.service.InventoryManager
+import com.app.partssearchapp.data.service.PartsDataService
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-/**
- * ViewModel for Home screen that manages user info and home state
- * Implements ProfileScreenListener to handle events from Profile screen
- */
 class HomeViewModel(
-    params: HomeParams,
-    private val repositoryService: RepositoryService,
+  params: HomeParams,
+  private val partsDataService: PartsDataService,
+  private val inventoryManager: InventoryManager,
 ) : BaseViewModel<HomeState, HomeUIEvent, HomeNavEvent, HomeUIEffect, HomeParams>(
   params = params,
   initialState = HomeState()
@@ -30,207 +16,123 @@ class HomeViewModel(
 
   init {
     setupEventHandlers()
-    initializeUserInfo()
-    launch { loadRepositories() }
+    launch { loadPopularMakes() }
   }
 
   private fun setupEventHandlers() {
-    launch { refreshDataHandler() }
-    launch { showWelcomeDialogHandler() }
-    launch { dismissWelcomeDialogHandler() }
-    launch { tabSelectedHandler() }
-    launch { logoutHandler() }
-    launch { navigateToProfileHandler() }
-    launch { loadRepositoriesHandler() }
-    launch { repositoryClickedHandler() }
+    launch { searchQueryChangedHandler() }
+    launch { searchPartsHandler() }
+    launch { makeSelectedHandler() }
+    launch { navigateToVehicleSelectionHandler() }
+    launch { navigateToCartHandler() }
+    launch { navigateToVendorDashboardHandler() }
+    launch { searchResultClickedHandler() }
+    launch { clearSearchHandler() }
   }
 
-  @OptIn(ExperimentalTime::class)
-  private fun initializeUserInfo() {
-    val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    val timeString = "${currentTime.hour}:${currentTime.minute.toString().padStart(2, '0')}"
-
-    updateState {
-      copy(
-        userInfo = UserInfo(
-            email = params.userEmail,
-            name = params.userName.ifEmpty { params.userEmail.substringBefore("@") },
-            loginType = params.loginType,
-            loginTime = timeString
-        ),
-        uiState = uiState.copy(showWelcomeDialog = params.loginType == "sign_up")
-      )
-    }
-  }
-
-  private suspend fun refreshDataHandler() {
-    uiEvents
-      .filterIsInstance<HomeUIEvent.RefreshData>()
-      .collect {
-        updateState {
-          copy(processState = processState.copy(refreshing = true))
-        }
-
-        try {
-          val repositories = repositoryService.refreshRepositories()
-          updateState {
-            copy(
-              repositories = repositories,
-              processState = processState.copy(refreshing = false)
-            )
-          }
-          GlobalSnackbarCenter.showSnackbar("Data refreshed successfully!")
-        } catch (e: Exception) {
-          updateState {
-            copy(processState = processState.copy(refreshing = false))
-          }
-          showErrorSnackbar("Failed to refresh data")
-        }
-      }
-  }
-
-  private suspend fun loadRepositories() {
+  private suspend fun loadPopularMakes() {
+    updateState { copy(isLoading = true) }
     try {
-      updateState {
-        copy(processState = processState.copy(isLoading = true))
-      }
-      // Show global loading overlay
-      GlobalPopupCenter.showNow(
-        overlayPopup(
-          scrimColor = Color(0x33000000),
-          dedupKey = "home_loading_repos"
-        ) {
-          CircularProgressIndicator()
-        }
-      )
-
-      val repositories = repositoryService.getRepositories()
-      updateState {
-        copy(
-          repositories = repositories,
-          processState = processState.copy(isLoading = false)
-        )
-      }
-      GlobalPopupCenter.dismiss(dedupKey = "home_loading_repos")
+      val makes = partsDataService.getMakes()
+      updateState { copy(popularMakes = makes, isLoading = false) }
     } catch (e: Exception) {
-      updateState {
-        copy(processState = processState.copy(isLoading = false))
-      }
-      GlobalPopupCenter.dismiss(dedupKey = "home_loading_repos")
-      showErrorSnackbar("Failed to load repositories")
+      updateState { copy(isLoading = false) }
+      showErrorSnackbar("Failed to load data")
     }
   }
 
-  private suspend fun loadRepositoriesHandler() {
+  private suspend fun searchQueryChangedHandler() {
     uiEvents
-      .filterIsInstance<HomeUIEvent.LoadRepositories>()
-      .collect {
-        loadRepositories()
-      }
-  }
-
-  private suspend fun repositoryClickedHandler() {
-    uiEvents
-      .filterIsInstance<HomeUIEvent.RepositoryClicked>()
+      .filterIsInstance<HomeUIEvent.SearchQueryChanged>()
       .collect { event ->
-        reportGlobalError(
-          "Something went wrong while opening ${event.repository.name}",
-          Throwable("Something Went wrong")
-        )
-      }
-  }
-
-  private suspend fun showWelcomeDialogHandler() {
-    uiEvents
-      .filterIsInstance<HomeUIEvent.ShowWelcomeDialog>()
-      .collect {
-        updateState {
-          copy(uiState = uiState.copy(showWelcomeDialog = true))
+        updateState { copy(searchQuery = event.query) }
+        if (event.query.length >= 2) {
+          updateState { copy(isSearching = true) }
+          try {
+            val results = inventoryManager.searchPartsWithListings(event.query)
+            updateState { copy(searchResults = results, isSearching = false) }
+          } catch (e: Exception) {
+            updateState { copy(isSearching = false) }
+          }
+        } else {
+          updateState { copy(searchResults = emptyList()) }
         }
       }
   }
 
-  private suspend fun dismissWelcomeDialogHandler() {
+  private suspend fun searchPartsHandler() {
     uiEvents
-      .filterIsInstance<HomeUIEvent.DismissWelcomeDialog>()
+      .filterIsInstance<HomeUIEvent.SearchParts>()
       .collect {
-        updateState {
-          copy(uiState = uiState.copy(showWelcomeDialog = false))
+        val query = currentState.searchQuery
+        if (query.isNotBlank()) {
+          updateState { copy(isSearching = true) }
+          try {
+            val results = inventoryManager.searchPartsWithListings(query)
+            updateState { copy(searchResults = results, isSearching = false) }
+          } catch (e: Exception) {
+            updateState { copy(isSearching = false) }
+            showErrorSnackbar("Search failed")
+          }
         }
       }
   }
 
-  private suspend fun tabSelectedHandler() {
+  private suspend fun makeSelectedHandler() {
     uiEvents
-      .filterIsInstance<HomeUIEvent.TabSelected>()
+      .filterIsInstance<HomeUIEvent.MakeSelected>()
       .collect { event ->
-        updateState {
-          copy(uiState = uiState.copy(selectedTab = event.index))
-        }
-      }
-  }
-
-  private suspend fun logoutHandler() {
-    uiEvents
-      .filterIsInstance<HomeUIEvent.LogoutClicked>()
-      .collect {
-        updateState {
-          copy(processState = processState.copy(isLoading = true))
-        }
-
-        // Simulate logout delay
-        delay(500)
-
-        emitNavEvent(HomeNavEvent.NavigateToLogin)
-      }
-  }
-
-  val profileListenerToken: String = registerListener(
-    object : ProfileListener {
-      override fun onNameUpdated(name: String) {
-        onProfileUpdated(name)
-      }
-
-      override fun onLogout() {
-        onLogoutClicked()
-      }
-
-      override fun onError(message: String) {
-        onErrorClicked(message)
-      }
-    }
-  )
-
-  private suspend fun navigateToProfileHandler() {
-    uiEvents
-      .filterIsInstance<HomeUIEvent.NavigateToProfile>()
-      .collect {
-        val profileParams = ProfileParams(
-          userId = currentState.userInfo.email,
-          userEmail = currentState.userInfo.email,
-          userName = currentState.userInfo.name,
-          listenerToken = profileListenerToken,
+        emitNavEvent(
+          HomeNavEvent.NavigateToVehicleSelection(
+            makeId = event.make.id,
+            makeName = event.make.name,
+          )
         )
-        emitNavEvent(HomeNavEvent.NavigateToProfile(profileParams))
       }
   }
 
-  fun onProfileUpdated(name: String) {
-    showSuccessSnackbar("Profile updated successfully!")
-    updateState {
-      copy(
-        userInfo = userInfo.copy(
-          name = name
+  private suspend fun navigateToVehicleSelectionHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.NavigateToVehicleSelection>()
+      .collect {
+        emitNavEvent(HomeNavEvent.NavigateToVehicleSelection())
+      }
+  }
+
+  private suspend fun navigateToCartHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.NavigateToCart>()
+      .collect {
+        emitNavEvent(HomeNavEvent.NavigateToCart)
+      }
+  }
+
+  private suspend fun navigateToVendorDashboardHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.NavigateToVendorDashboard>()
+      .collect {
+        emitNavEvent(HomeNavEvent.NavigateToVendorDashboard(vendorId = 1))
+      }
+  }
+
+  private suspend fun searchResultClickedHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.SearchResultClicked>()
+      .collect { event ->
+        emitNavEvent(
+          HomeNavEvent.NavigateToPartDetail(
+            partId = event.part.id,
+            partName = event.part.name,
+          )
         )
-      )
-    }
+      }
   }
 
-  fun onLogoutClicked() {
-    emitNavEvent(HomeNavEvent.NavigateToLogin)
-  }
-
-  fun onErrorClicked(error: String) {
-    showErrorSnackbar("Error: $error")
+  private suspend fun clearSearchHandler() {
+    uiEvents
+      .filterIsInstance<HomeUIEvent.ClearSearch>()
+      .collect {
+        updateState { copy(searchQuery = "", searchResults = emptyList()) }
+      }
   }
 }
