@@ -18,13 +18,13 @@ inline fun <
     UIEffect,
     reified Params,
     > BaseRoute(
-  backStackEntry: NavBackStackEntry,
-  noinline router: @Composable (Flow<NavEvent>) -> Unit,
-  content: @Composable (UIState, (UIEvent) -> Unit, Flow<UIEffect>) -> Unit,
+    backStackEntry: NavBackStackEntry,
+    noinline router: @Composable (Flow<NavEvent>) -> Unit,
+    content: @Composable (UIState, (UIEvent) -> Unit, Flow<UIEffect>) -> Unit,
 ) {
-  val params = backStackEntry.toRoute<Params>()
-  val viewModel: VM = koinViewModel(parameters = { parametersOf(params) })
-  val state by viewModel.stateFlow.collectAsState()
-  content(state, viewModel::emitUIEvent, viewModel.uiEffects)
-  router(viewModel.navEvents)
+    val params = backStackEntry.toRoute<Params>()
+    val viewModel: VM = koinViewModel(parameters = { parametersOf(params) })
+    val state by viewModel.stateFlow.collectAsState()
+    content(state, viewModel::emitUIEvent, viewModel.uiEffects)
+    router(viewModel.navEvents)
 }

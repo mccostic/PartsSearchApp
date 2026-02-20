@@ -1,7 +1,6 @@
 package com.app.partssearchapp.screens.partdetail
 
 import com.app.partssearchapp.*
-import com.app.partssearchapp.data.models.VendorListing
 import com.app.partssearchapp.data.service.CartManager
 import com.app.partssearchapp.data.service.InventoryManager
 import com.app.partssearchapp.fakes.FakePartsDataService

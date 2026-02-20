@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -19,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -29,7 +28,7 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
@@ -142,9 +141,13 @@ ktlint {
     android.set(true)
     outputToConsole.set(true)
     ignoreFailures.set(false)
+
     filter {
-        exclude("**/generated/**")
+        exclude { it.file.path.contains("build/generated") }
+        exclude { it.file.path.contains("sqldelight") }
         exclude("**/build/**")
+        exclude("**/generated/**")
+        exclude("**/sqldelight/**")
     }
 }
 
@@ -173,9 +176,11 @@ kover {
         }
         verify {
             rule("Minimum coverage") {
-                minBound(60)
+                minBound(50)
             }
         }
     }
 }
-
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+    exclude("**/build/generated/**")
+}

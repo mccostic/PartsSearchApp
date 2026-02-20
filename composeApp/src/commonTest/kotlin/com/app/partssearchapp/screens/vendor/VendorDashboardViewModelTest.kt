@@ -5,6 +5,7 @@ import com.app.partssearchapp.data.models.OrderStatus
 import com.app.partssearchapp.data.service.InventoryManager
 import kotlin.test.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -32,10 +33,10 @@ class VendorDashboardViewModelTest {
     fun initialStateLoadsVendorData() = runTest {
         val vm = createVm()
         awaitIdle()
-
+        advanceUntilIdle()
         val state = vm.stateFlow.value
         assertNotNull(state.vendor)
-        assertEquals("Accra Auto Parts", state.vendor?.name)
+        assertEquals("Accra Auto Parts", state.vendor.name)
         assertTrue(state.listings.isNotEmpty())
         assertTrue(state.orders.isNotEmpty())
         assertTrue(state.availableParts.isNotEmpty())
@@ -217,7 +218,7 @@ class VendorDashboardViewModelTest {
     fun revenueStatsComputedFromDeliveredOrders() = runTest {
         val vm = createVm()
         awaitIdle()
-
+        advanceUntilIdle()
         val state = vm.stateFlow.value
         assertTrue(state.totalRevenue > 0.0)
         assertTrue(state.totalItemsSold > 0)

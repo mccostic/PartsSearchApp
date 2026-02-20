@@ -1,21 +1,24 @@
 package com.app.partssearchapp.arch
 
 object GlobalListenerRegistry {
-  private var counter = 0L
-  @PublishedApi
-  internal val backingMap = mutableMapOf<String, Any>()
+    private var counter = 0L
 
-  fun <T: Any> register(listener: T): String {
-    val token = "L_" + (++counter)
-    backingMap[token] = listener
-    return token
-  }
+    @PublishedApi
+    internal val backingMap = mutableMapOf<String, Any>()
 
-  inline fun <reified T: Any> getTyped(token: String): T = backingMap[token] as? T
-    ?: error("Listener for token '$token' not found or wrong type ${T::class}")
+    fun <T : Any> register(listener: T): String {
+        val token = "L_" + (++counter)
+        backingMap[token] = listener
+        return token
+    }
 
-  fun unregister(token: String) { backingMap.remove(token) }
+    inline fun <reified T : Any> getTyped(token: String): T = backingMap[token] as? T
+        ?: error("Listener for token '$token' not found or wrong type ${T::class}")
 
-  @Suppress("UNCHECKED_CAST")
-  fun <T: Any> get(token: String): T? = backingMap[token] as? T
+    fun unregister(token: String) {
+        backingMap.remove(token)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> get(token: String): T? = backingMap[token] as? T
 }

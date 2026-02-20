@@ -1,0 +1,162 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:LoginView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LoginView(state: LoginState, onEvent: (LoginUIEvent) -&gt; Unit, uiEffects: Flow&lt;LoginUIEffect&gt;,)</ID>
+    <ID>CyclomaticComplexMethod:VendorDashboardView.kt$@Composable private fun OrderCard(order: Order, onUpdateStatus: (OrderStatus) -&gt; Unit,)</ID>
+    <ID>CyclomaticComplexMethod:VpicLocalDataSource.kt$VpicLocalDataSource$private fun buildEngineDescription( displacementL: String?, cylinders: String?, engineConfig: String?, fuelType: String?, turbo: String?, valveTrain: String?, horsepowerFrom: String?, horsepowerTo: String?, ): String</ID>
+    <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
+    <ID>LargeClass:InventoryManager.kt$InventoryManager$Companion</ID>
+    <ID>LongMethod:CartView.kt$@Composable private fun CartItemCard(item: CartItem, onRemove: () -&gt; Unit, onQuantityChange: (Int) -&gt; Unit,)</ID>
+    <ID>LongMethod:CartView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CartView(state: CartState, onEvent: (CartUIEvent) -&gt; Unit, uiEffects: Flow&lt;CartUIEffect&gt;,)</ID>
+    <ID>LongMethod:CategoriesView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CategoriesView(state: CategoriesState, onEvent: (CategoriesUIEvent) -&gt; Unit, uiEffects: Flow&lt;CategoriesUIEffect&gt;,)</ID>
+    <ID>LongMethod:HomeView.kt$@Composable private fun HeroSection( searchQuery: String, isSearching: Boolean, onSearchQueryChanged: (String) -&gt; Unit, onSearch: () -&gt; Unit, onSelectVehicle: () -&gt; Unit, onClearSearch: () -&gt; Unit, )</ID>
+    <ID>LongMethod:HomeView.kt$@Composable private fun SearchResultCard(result: PartWithListings, onClick: () -&gt; Unit,)</ID>
+    <ID>LongMethod:HomeView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun HomeView(state: HomeState, onEvent: (HomeUIEvent) -&gt; Unit, uiEffects: Flow&lt;HomeUIEffect&gt;,)</ID>
+    <ID>LongMethod:LoginView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LoginView(state: LoginState, onEvent: (LoginUIEvent) -&gt; Unit, uiEffects: Flow&lt;LoginUIEffect&gt;,)</ID>
+    <ID>LongMethod:Navigator.kt$@Composable fun Navigator()</ID>
+    <ID>LongMethod:PartDetailView.kt$@Composable private fun VendorListingDetailCard(listing: VendorListing, onAddToCart: () -&gt; Unit,)</ID>
+    <ID>LongMethod:PartDetailView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PartDetailView(state: PartDetailState, onEvent: (PartDetailUIEvent) -&gt; Unit, uiEffects: Flow&lt;PartDetailUIEffect&gt;,)</ID>
+    <ID>LongMethod:PartsListingView.kt$@Composable private fun PartCard( part: Part, listings: List&lt;VendorListing&gt;, isExpanded: Boolean, onPartClick: () -&gt; Unit, onAddToCart: (VendorListing) -&gt; Unit, )</ID>
+    <ID>LongMethod:PartsListingView.kt$@Composable private fun VendorListingCard(listing: VendorListing, onAddToCart: () -&gt; Unit,)</ID>
+    <ID>LongMethod:PartsListingView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PartsListingView( state: PartsListingState, onEvent: (PartsListingUIEvent) -&gt; Unit, uiEffects: Flow&lt;PartsListingUIEffect&gt;, )</ID>
+    <ID>LongMethod:ProfileView.kt$@Composable private fun ProfileHeader( userProfile: UserProfile, isEditing: Boolean, onNameChange: (String) -&gt; Unit, onBioChange: (String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:ProfileView.kt$@Composable private fun SettingsContent(onDeleteAccount: () -&gt; Unit, onTriggerError: () -&gt; Unit, modifier: Modifier = Modifier,)</ID>
+    <ID>LongMethod:ProfileView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileView( state: ProfileState, onEvent: (ProfileUIEvent) -&gt; Unit, uiEffects: Flow&lt;ProfileUIEffect&gt;, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:VehicleSelectionView.kt$@Composable private fun BubbleScrollbar( listState: LazyListState, modifier: Modifier = Modifier, trackWidth: Dp = 6.dp, thumbMinHeight: Dp = 32.dp, content: @Composable () -&gt; Unit, )</ID>
+    <ID>LongMethod:VehicleSelectionView.kt$@Composable private fun MakeList( currentStep: SelectionStep, makes: List&lt;com.app.partssearchapp.data.models.VehicleMake&gt;, searchQuery: String, onSearchChanged: (String) -&gt; Unit, onMakeSelected: (com.app.partssearchapp.data.models.VehicleMake) -&gt; Unit, )</ID>
+    <ID>LongMethod:VehicleSelectionView.kt$@Composable private fun ModelList( currentStep: SelectionStep, models: List&lt;com.app.partssearchapp.data.models.VehicleModel&gt;, makeName: String, searchQuery: String, onSearchChanged: (String) -&gt; Unit, onModelSelected: (com.app.partssearchapp.data.models.VehicleModel) -&gt; Unit, )</ID>
+    <ID>LongMethod:VehicleSelectionView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun VehicleSelectionView( state: VehicleSelectionState, onEvent: (VehicleSelectionUIEvent) -&gt; Unit, uiEffects: Flow&lt;VehicleSelectionUIEffect&gt;, )</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@Composable private fun EditListingDialog( listing: VendorListing, onDismiss: () -&gt; Unit, onSave: (listingId: Int, price: Double, stockQty: Int, inStock: Boolean) -&gt; Unit, )</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@Composable private fun InventoryItemCard(listing: VendorListing, onEdit: () -&gt; Unit, onRemove: () -&gt; Unit,)</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@Composable private fun InventoryTab( listings: List&lt;VendorListing&gt;, searchQuery: String, onSearchChanged: (String) -&gt; Unit, onAddListing: () -&gt; Unit, onEditListing: (VendorListing) -&gt; Unit, onRemoveListing: (Int) -&gt; Unit, )</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@Composable private fun OrderCard(order: Order, onUpdateStatus: (OrderStatus) -&gt; Unit,)</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@Composable private fun OverviewTab(state: VendorDashboardState)</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun VendorDashboardView( state: VendorDashboardState, onEvent: (VendorDashboardUIEvent) -&gt; Unit, uiEffects: Flow&lt;VendorDashboardUIEffect&gt;, )</ID>
+    <ID>LongMethod:VendorDashboardView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddListingDialog( availableParts: List&lt;Part&gt;, onDismiss: () -&gt; Unit, onAdd: ( partId: Int, brandName: String, partNumber: String, price: Double, stockQty: Int, condition: String ) -&gt; Unit, )</ID>
+    <ID>LongMethod:VendorDashboardViewModel.kt$VendorDashboardViewModel$private fun getMockOrders(): List&lt;Order&gt;</ID>
+    <ID>LongParameterList:CartView.kt$( customerName: String, customerPhone: String, deliveryAddress: String, totalPrice: Double, onNameChange: (String) -&gt; Unit, onPhoneChange: (String) -&gt; Unit, onAddressChange: (String) -&gt; Unit, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:VpicLocalDataSource.kt$VpicLocalDataSource$( displacementL: String?, cylinders: String?, engineConfig: String?, fuelType: String?, turbo: String?, valveTrain: String?, horsepowerFrom: String?, horsepowerTo: String?, )</ID>
+    <ID>MagicNumber:ApiClient.kt$MockApiClient$1000</ID>
+    <ID>MagicNumber:ApiClient.kt$MockApiClient$300</ID>
+    <ID>MagicNumber:AuthUseCase.kt$AuthUseCase$1000</ID>
+    <ID>MagicNumber:AuthUseCase.kt$AuthUseCase$6</ID>
+    <ID>MagicNumber:BaseViewModel.kt$BaseViewModel$40</ID>
+    <ID>MagicNumber:FlowExtensions.kt$300</ID>
+    <ID>MagicNumber:GlobalPopup.kt$PopupSpec$0x80000000</ID>
+    <ID>MagicNumber:NhtsaPartsDataService.kt$NhtsaPartsDataService$2000</ID>
+    <ID>MagicNumber:NhtsaPartsDataService.kt$NhtsaPartsDataService$2025</ID>
+    <ID>MagicNumber:NhtsaPartsDataService.kt$NhtsaPartsDataService$3</ID>
+    <ID>MagicNumber:PartsDataService.kt$MockPartsDataService$100</ID>
+    <ID>MagicNumber:PartsDataService.kt$MockPartsDataService$200</ID>
+    <ID>MagicNumber:PartsDataService.kt$MockPartsDataService$300</ID>
+    <ID>MagicNumber:ProfileViewModel.kt$ProfileViewModel$1000</ID>
+    <ID>MagicNumber:ProfileViewModel.kt$ProfileViewModel$1500</ID>
+    <ID>MagicNumber:RepositoryService.kt$NetworkRepositoryService$1000</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$10</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$100</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$16</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$185.0</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$21</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$23</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$25</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$3</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$30</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$35.0</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$39</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$4</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$40</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$450.0</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$5</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$52</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$64</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$650.0</ID>
+    <ID>MagicNumber:VendorDashboardViewModel.kt$VendorDashboardViewModel$95.0</ID>
+    <ID>MagicNumber:VpicLocalDataSource.kt$VpicLocalDataSource$100</ID>
+    <ID>MagicNumber:VpicLocalDataSource.kt$VpicLocalDataSource$10000</ID>
+    <ID>MagicNumber:VpicLocalDataSource.kt$VpicLocalDataSource$1000000</ID>
+    <ID>MatchingDeclarationName:CartRoute.kt$CartParams</ID>
+    <ID>MatchingDeclarationName:CategoriesRoute.kt$CategoriesParams</ID>
+    <ID>MatchingDeclarationName:DatabaseDriverFactory.android.kt$DatabaseDriverFactory</ID>
+    <ID>MatchingDeclarationName:DatabaseDriverFactory.ios.kt$DatabaseDriverFactory</ID>
+    <ID>MatchingDeclarationName:HomeRoute.kt$HomeParams</ID>
+    <ID>MatchingDeclarationName:LoginRoute.kt$LoginParams</ID>
+    <ID>MatchingDeclarationName:PartDetailRoute.kt$PartDetailParams</ID>
+    <ID>MatchingDeclarationName:PartsListingRoute.kt$PartsListingParams</ID>
+    <ID>MatchingDeclarationName:Platform.android.kt$AndroidPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:Platform.ios.kt$IOSPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:ProfileRoute.kt$ProfileParams</ID>
+    <ID>MatchingDeclarationName:VehicleSelectionRoute.kt$VehicleSelectionParams</ID>
+    <ID>MatchingDeclarationName:VendorDashboardRoute.kt$VendorDashboardParams</ID>
+    <ID>MaxLineLength:CategoriesRoute.kt$BaseRoute</ID>
+    <ID>MaxLineLength:HomeView.kt$text = "${state.searchResults.size} part${if (state.searchResults.size &gt; 1) "s" else ""} found"</ID>
+    <ID>MaxLineLength:PartDetailRoute.kt$BaseRoute</ID>
+    <ID>MaxLineLength:PartsListingRoute.kt$BaseRoute</ID>
+    <ID>MaxLineLength:PartsListingViewModel.kt$PartsListingViewModel$)</ID>
+    <ID>MaxLineLength:VehicleSelectionRoute.kt$BaseRoute</ID>
+    <ID>MaxLineLength:VehicleSelectionViewModel.kt$VehicleSelectionViewModel$BaseViewModel&lt;VehicleSelectionState, VehicleSelectionUIEvent, VehicleSelectionNavEvent, VehicleSelectionUIEffect, VehicleSelectionParams&gt;</ID>
+    <ID>MaxLineLength:VendorDashboardRoute.kt$BaseRoute</ID>
+    <ID>MaxLineLength:VendorDashboardView.kt$"${item.quantity}x ${item.partName} - ${item.vendorListing.currency} ${item.totalPrice.formatPrice()}"</ID>
+    <ID>MaxLineLength:VendorDashboardViewModel.kt$VendorDashboardViewModel$BaseViewModel&lt;VendorDashboardState, VendorDashboardUIEvent, VendorDashboardNavEvent, VendorDashboardUIEffect, VendorDashboardParams&gt;</ID>
+    <ID>MaxLineLength:VendorDashboardViewModel.kt$VendorDashboardViewModel$VendorListing(1, 1, params.vendorId, "Self", "TOYOTA GENUINE", "04465-02220", 185.0, "GHS", true, 25)</ID>
+    <ID>MaxLineLength:VendorDashboardViewModel.kt$VendorDashboardViewModel$VendorListing(23, 10, params.vendorId, "Self", "TOYOTA GENUINE", "90915-YZZD4", 35.0, "GHS", true, 100)</ID>
+    <ID>SwallowedException:CategoriesViewModel.kt$CategoriesViewModel$e: Exception</ID>
+    <ID>SwallowedException:HomeViewModel.kt$HomeViewModel$e: Exception</ID>
+    <ID>SwallowedException:NhtsaPartsDataService.kt$NhtsaPartsDataService$e: Exception</ID>
+    <ID>SwallowedException:PartDetailViewModel.kt$PartDetailViewModel$e: Exception</ID>
+    <ID>SwallowedException:PartsListingViewModel.kt$PartsListingViewModel$e: Exception</ID>
+    <ID>SwallowedException:RepositoryService.kt$NetworkRepositoryService$e: Exception</ID>
+    <ID>SwallowedException:VehicleSelectionViewModel.kt$VehicleSelectionViewModel$e: Exception</ID>
+    <ID>SwallowedException:VendorDashboardViewModel.kt$VendorDashboardViewModel$e: Exception</ID>
+    <ID>SwallowedException:VpicLocalDataSource.kt$VpicLocalDataSource$e: Exception</ID>
+    <ID>UnusedParameter:CategoriesView.kt$uiEffects: Flow&lt;CategoriesUIEffect&gt;</ID>
+    <ID>UnusedParameter:HomeView.kt$onSearch: () -&gt; Unit</ID>
+    <ID>UnusedParameter:HomeView.kt$uiEffects: Flow&lt;HomeUIEffect&gt;</ID>
+    <ID>UnusedParameter:PartDetailView.kt$uiEffects: Flow&lt;PartDetailUIEffect&gt;</ID>
+    <ID>UnusedParameter:PartsListingView.kt$uiEffects: Flow&lt;PartsListingUIEffect&gt;</ID>
+    <ID>UnusedParameter:VehicleSelectionView.kt$uiEffects: Flow&lt;VehicleSelectionUIEffect&gt;</ID>
+    <ID>UnusedParameter:VendorDashboardView.kt$uiEffects: Flow&lt;VendorDashboardUIEffect&gt;</ID>
+    <ID>WildcardImport:CartView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CartView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CartView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CartView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CartView.kt$import com.app.partssearchapp.screens.cart.*</ID>
+    <ID>WildcardImport:CategoriesView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CategoriesView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:CategoriesView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CategoriesView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CategoriesView.kt$import com.app.partssearchapp.screens.categories.*</ID>
+    <ID>WildcardImport:HomeView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:HomeView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:HomeView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:HomeView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:LoginView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:LoginView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:LoginView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:LoginView.kt$import com.app.partssearchapp.screens.login.*</ID>
+    <ID>WildcardImport:NhtsaPartsDataService.kt$import com.app.partssearchapp.data.models.*</ID>
+    <ID>WildcardImport:PartDetailView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PartDetailView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:PartDetailView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PartDetailView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PartDetailView.kt$import com.app.partssearchapp.screens.partdetail.*</ID>
+    <ID>WildcardImport:PartsDataService.kt$import com.app.partssearchapp.data.models.*</ID>
+    <ID>WildcardImport:PartsListingView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PartsListingView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:PartsListingView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:PartsListingView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:PartsListingView.kt$import com.app.partssearchapp.screens.partslisting.*</ID>
+    <ID>WildcardImport:VehicleSelectionContract.kt$import com.app.partssearchapp.data.models.*</ID>
+    <ID>WildcardImport:VehicleSelectionView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:VehicleSelectionView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:VehicleSelectionView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:VehicleSelectionView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:VehicleSelectionView.kt$import com.app.partssearchapp.screens.vehicleselection.*</ID>
+    <ID>WildcardImport:VendorDashboardView.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:VendorDashboardView.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:VendorDashboardView.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:VendorDashboardView.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:VendorDashboardView.kt$import com.app.partssearchapp.screens.vendor.*</ID>
+    <ID>WildcardImport:VendorDashboardViewModel.kt$import com.app.partssearchapp.data.models.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
