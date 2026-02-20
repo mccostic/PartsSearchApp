@@ -133,16 +133,13 @@ abstract class BaseViewModel<UIState, UIEvent, NavEvent, UIEffect, Params>(
     }
 
     /** Preferred launcher for ViewModels: Default dispatcher + global exception handler */
-    protected fun launch(block: suspend CoroutineScope.() -> Unit): Job =
-        viewModelScope.launch(Dispatchers.Default + globalExceptionHandler) { block() }
+    protected fun launch(block: suspend CoroutineScope.() -> Unit): Job = viewModelScope.launch(Dispatchers.Default + globalExceptionHandler) { block() }
 
     /** Helper to launch with global handler on Main (when UI-bound work is needed) */
-    protected fun launchMain(block: suspend CoroutineScope.() -> Unit): Job =
-        viewModelScope.launch(globalExceptionHandler) { block() }
+    protected fun launchMain(block: suspend CoroutineScope.() -> Unit): Job = viewModelScope.launch(globalExceptionHandler) { block() }
 
     /** Helper to launch with global handler on IO */
-    protected fun launchIO(block: suspend CoroutineScope.() -> Unit): Job =
-        viewModelScope.launch(Dispatchers.IO + globalExceptionHandler) { block() }
+    protected fun launchIO(block: suspend CoroutineScope.() -> Unit): Job = viewModelScope.launch(Dispatchers.IO + globalExceptionHandler) { block() }
 
     /** Helper to launch without handler (fire-and-forget or when you handle try/catch locally) */
     protected fun launchRaw(block: suspend CoroutineScope.() -> Unit): Job = viewModelScope.launch { block() }

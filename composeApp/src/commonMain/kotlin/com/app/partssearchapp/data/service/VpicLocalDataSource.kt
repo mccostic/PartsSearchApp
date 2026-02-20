@@ -139,6 +139,5 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
         return if (parts.isEmpty()) "Unknown Engine" else parts.joinToString(" ")
     }
 
-    private fun generateEngineId(makeId: Int, year: Int, modelId: Int, index: Int): Int =
-        (makeId * 1000000) + (year % 100 * 10000) + (modelId % 100 * 100) + index
+    private fun generateEngineId(makeId: Int, year: Int, modelId: Int, index: Int): Int = (makeId * 1000000) + (year % 100 * 10000) + (modelId % 100 * 100) + index
 }

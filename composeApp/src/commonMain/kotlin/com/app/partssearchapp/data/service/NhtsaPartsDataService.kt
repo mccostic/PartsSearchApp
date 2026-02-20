@@ -116,11 +116,9 @@ class NhtsaPartsDataService(
 
     override suspend fun getCategoriesForEngine(engineId: Int): List<PartCategory> = inventoryManager.categories.value
 
-    override suspend fun getPartsForCategory(categoryId: Int, engineId: Int): List<Part> =
-        inventoryManager.getAllPartsForCategory(categoryId)
+    override suspend fun getPartsForCategory(categoryId: Int, engineId: Int): List<Part> = inventoryManager.getAllPartsForCategory(categoryId)
 
-    override suspend fun getListingsForPart(partId: Int): List<VendorListing> =
-        inventoryManager.getAllListingsForPart(partId)
+    override suspend fun getListingsForPart(partId: Int): List<VendorListing> = inventoryManager.getAllListingsForPart(partId)
 
     override suspend fun getVendor(vendorId: Int): Vendor? = inventoryManager.getVendor(vendorId)
 
