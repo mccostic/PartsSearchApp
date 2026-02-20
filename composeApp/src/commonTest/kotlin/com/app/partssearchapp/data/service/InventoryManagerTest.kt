@@ -125,10 +125,12 @@ class InventoryManagerTest {
     fun searchPartsReturnsMatchingResults() {
         val results = manager.searchParts("brake")
         assertTrue(results.isNotEmpty())
-        assertTrue(results.all {
-            it.name.contains("brake", ignoreCase = true) ||
-                it.description.contains("brake", ignoreCase = true)
-        })
+        assertTrue(
+            results.all {
+                it.name.contains("brake", ignoreCase = true) ||
+                    it.description.contains("brake", ignoreCase = true)
+            }
+        )
     }
 
     @Test

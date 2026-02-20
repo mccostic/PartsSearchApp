@@ -33,94 +33,94 @@ import com.app.partssearchapp.screens.vendor.VendorDashboardRoute
 
 @Composable
 fun Navigator() {
-  val navController = rememberNavController()
-  CompositionLocalProvider(LocalNavController provides navController) {
-    NavHost(
-      navController = navController,
-      startDestination = HomeParams(
-        userEmail = "",
-        userName = "",
-        loginType = ""
-      )
-    ) {
-      composable<LoginParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        LoginRoute(backStackEntry)
-      }
+    val navController = rememberNavController()
+    CompositionLocalProvider(LocalNavController provides navController) {
+        NavHost(
+            navController = navController,
+            startDestination = HomeParams(
+                userEmail = "",
+                userName = "",
+                loginType = ""
+            )
+        ) {
+            composable<LoginParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                LoginRoute(backStackEntry)
+            }
 
-      composable<HomeParams>(
-        enterTransition = { fadeIn(tween(200)) },
-        exitTransition = { fadeOut(tween(200)) }
-      ) { backStackEntry ->
-        HomeRoute(backStackEntry)
-      }
+            composable<HomeParams>(
+                enterTransition = { fadeIn(tween(200)) },
+                exitTransition = { fadeOut(tween(200)) }
+            ) { backStackEntry ->
+                HomeRoute(backStackEntry)
+            }
 
-      composable<ProfileParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        ProfileRoute(backStackEntry)
-      }
+            composable<ProfileParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                ProfileRoute(backStackEntry)
+            }
 
-      composable<VehicleSelectionParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { -it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        VehicleSelectionRoute(backStackEntry)
-      }
+            composable<VehicleSelectionParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { -it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                VehicleSelectionRoute(backStackEntry)
+            }
 
-      composable<CategoriesParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { -it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        CategoriesRoute(backStackEntry)
-      }
+            composable<CategoriesParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { -it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                CategoriesRoute(backStackEntry)
+            }
 
-      composable<PartsListingParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { -it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        PartsListingRoute(backStackEntry)
-      }
+            composable<PartsListingParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { -it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                PartsListingRoute(backStackEntry)
+            }
 
-      composable<PartDetailParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { -it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        PartDetailRoute(backStackEntry)
-      }
+            composable<PartDetailParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { -it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                PartDetailRoute(backStackEntry)
+            }
 
-      composable<CartParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        CartRoute(backStackEntry)
-      }
+            composable<CartParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                CartRoute(backStackEntry)
+            }
 
-      composable<VendorDashboardParams>(
-        enterTransition = { slideInHorizontally { it } },
-        exitTransition = { slideOutHorizontally { it } },
-        popEnterTransition = { slideInHorizontally { -it } },
-        popExitTransition = { slideOutHorizontally { it } }
-      ) { backStackEntry ->
-        VendorDashboardRoute(backStackEntry)
-      }
+            composable<VendorDashboardParams>(
+                enterTransition = { slideInHorizontally { it } },
+                exitTransition = { slideOutHorizontally { it } },
+                popEnterTransition = { slideInHorizontally { -it } },
+                popExitTransition = { slideOutHorizontally { it } }
+            ) { backStackEntry ->
+                VendorDashboardRoute(backStackEntry)
+            }
+        }
     }
-  }
 }
 
 val LocalNavController = staticCompositionLocalOf<NavHostController> {
-  error("NavController not provided")
+    error("NavController not provided")
 }

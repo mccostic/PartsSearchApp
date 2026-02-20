@@ -22,9 +22,15 @@ class ProfileViewModelTest {
         lastError = null
         listenerToken = GlobalListenerRegistry.register(
             object : ProfileListener {
-                override fun onNameUpdated(name: String) { lastUpdatedName = name }
-                override fun onLogout() { logoutCalled = true }
-                override fun onError(message: String) { lastError = message }
+                override fun onNameUpdated(name: String) {
+                    lastUpdatedName = name
+                }
+                override fun onLogout() {
+                    logoutCalled = true
+                }
+                override fun onError(message: String) {
+                    lastError = message
+                }
             },
         )
     }

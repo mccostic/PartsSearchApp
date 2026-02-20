@@ -6,17 +6,15 @@ import com.app.partssearchapp.LocalNavController
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun VendorDashboardRouter(
-  navEvents: Flow<VendorDashboardNavEvent>,
-) {
-  val navController = LocalNavController.current
-  LaunchedEffect(Unit) {
-    navEvents.collect {
-      when (it) {
-        is VendorDashboardNavEvent.NavigateBack -> {
-          navController.popBackStack()
+fun VendorDashboardRouter(navEvents: Flow<VendorDashboardNavEvent>,) {
+    val navController = LocalNavController.current
+    LaunchedEffect(Unit) {
+        navEvents.collect {
+            when (it) {
+                is VendorDashboardNavEvent.NavigateBack -> {
+                    navController.popBackStack()
+                }
+            }
         }
-      }
     }
-  }
 }

@@ -10,24 +10,20 @@ import kotlinx.serialization.Serializable
  * Navigation parameters for Home screen
  */
 @Serializable
-data class HomeParams(
-  val userEmail: String,
-  val userName: String,
-  val loginType: String,
-)
+data class HomeParams(val userEmail: String, val userName: String, val loginType: String,)
 
 @Composable
 fun HomeRoute(backStackEntry: NavBackStackEntry) {
-  BaseRoute<HomeViewModel, HomeState, HomeUIEvent, HomeNavEvent, HomeUIEffect, HomeParams>(
-    backStackEntry = backStackEntry,
-    router = { navEvents ->
-        HomeRouter(navEvents = navEvents)
+    BaseRoute<HomeViewModel, HomeState, HomeUIEvent, HomeNavEvent, HomeUIEffect, HomeParams>(
+        backStackEntry = backStackEntry,
+        router = { navEvents ->
+            HomeRouter(navEvents = navEvents)
+        }
+    ) { state, onEvent, uiEffects ->
+        HomeView(
+            state = state,
+            onEvent = onEvent,
+            uiEffects = uiEffects
+        )
     }
-  ) { state, onEvent, uiEffects ->
-    HomeView(
-      state = state,
-      onEvent = onEvent,
-      uiEffects = uiEffects
-    )
-  }
 }

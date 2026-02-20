@@ -8,23 +8,23 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VehicleSelectionParams(
-  val fromScreen: String = "home",
-  val preselectedMakeId: Int = -1,
-  val preselectedMakeName: String = "",
+    val fromScreen: String = "home",
+    val preselectedMakeId: Int = -1,
+    val preselectedMakeName: String = "",
 )
 
 @Composable
 fun VehicleSelectionRoute(backStackEntry: NavBackStackEntry) {
-  BaseRoute<VehicleSelectionViewModel, VehicleSelectionState, VehicleSelectionUIEvent, VehicleSelectionNavEvent, VehicleSelectionUIEffect, VehicleSelectionParams>(
-    backStackEntry = backStackEntry,
-    router = { navEvents ->
-      VehicleSelectionRouter(navEvents = navEvents)
+    BaseRoute<VehicleSelectionViewModel, VehicleSelectionState, VehicleSelectionUIEvent, VehicleSelectionNavEvent, VehicleSelectionUIEffect, VehicleSelectionParams>(
+        backStackEntry = backStackEntry,
+        router = { navEvents ->
+            VehicleSelectionRouter(navEvents = navEvents)
+        }
+    ) { state, onEvent, uiEffects ->
+        VehicleSelectionView(
+            state = state,
+            onEvent = onEvent,
+            uiEffects = uiEffects,
+        )
     }
-  ) { state, onEvent, uiEffects ->
-    VehicleSelectionView(
-      state = state,
-      onEvent = onEvent,
-      uiEffects = uiEffects,
-    )
-  }
 }

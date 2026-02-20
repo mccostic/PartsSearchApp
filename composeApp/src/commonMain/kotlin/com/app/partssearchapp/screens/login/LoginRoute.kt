@@ -7,23 +7,20 @@ import com.app.partssearchapp.screens.login.compose.LoginView
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginParams(
-  val fromScreen: String = "home",
-  val prefillEmail: String = "",
-)
+data class LoginParams(val fromScreen: String = "home", val prefillEmail: String = "",)
 
 @Composable
 fun LoginRoute(backStackEntry: NavBackStackEntry) {
-  BaseRoute<LoginViewModel, LoginState, LoginUIEvent, LoginNavEvent, LoginUIEffect, LoginParams>(
-    backStackEntry = backStackEntry,
-    router = { navEvents ->
-        LoginRouter(navEvents = navEvents)
+    BaseRoute<LoginViewModel, LoginState, LoginUIEvent, LoginNavEvent, LoginUIEffect, LoginParams>(
+        backStackEntry = backStackEntry,
+        router = { navEvents ->
+            LoginRouter(navEvents = navEvents)
+        }
+    ) { state, onEvent, uiEffects ->
+        LoginView(
+            state = state,
+            onEvent = onEvent,
+            uiEffects = uiEffects
+        )
     }
-  ) { state, onEvent, uiEffects ->
-    LoginView(
-      state = state,
-      onEvent = onEvent,
-      uiEffects = uiEffects
-    )
-  }
 }

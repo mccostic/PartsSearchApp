@@ -8,24 +8,24 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PartDetailParams(
-  val partId: Int,
-  val partName: String,
-  val vehicleBreadcrumb: String,
-  val categoryName: String,
+    val partId: Int,
+    val partName: String,
+    val vehicleBreadcrumb: String,
+    val categoryName: String,
 )
 
 @Composable
 fun PartDetailRoute(backStackEntry: NavBackStackEntry) {
-  BaseRoute<PartDetailViewModel, PartDetailState, PartDetailUIEvent, PartDetailNavEvent, PartDetailUIEffect, PartDetailParams>(
-    backStackEntry = backStackEntry,
-    router = { navEvents ->
-      PartDetailRouter(navEvents = navEvents)
+    BaseRoute<PartDetailViewModel, PartDetailState, PartDetailUIEvent, PartDetailNavEvent, PartDetailUIEffect, PartDetailParams>(
+        backStackEntry = backStackEntry,
+        router = { navEvents ->
+            PartDetailRouter(navEvents = navEvents)
+        }
+    ) { state, onEvent, uiEffects ->
+        PartDetailView(
+            state = state,
+            onEvent = onEvent,
+            uiEffects = uiEffects,
+        )
     }
-  ) { state, onEvent, uiEffects ->
-    PartDetailView(
-      state = state,
-      onEvent = onEvent,
-      uiEffects = uiEffects,
-    )
-  }
 }

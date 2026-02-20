@@ -7,21 +7,19 @@ import com.app.partssearchapp.screens.login.LoginParams
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun ProfileRouter(
-    navEvents: Flow<ProfileNavEvent>,
-) {
-  val rootNavController = LocalNavController.current
-  LaunchedEffect(Unit) {
-    navEvents.collect { event ->
-      when (event) {
-        is ProfileNavEvent.NavigateBack -> rootNavController.popBackStack()
+fun ProfileRouter(navEvents: Flow<ProfileNavEvent>,) {
+    val rootNavController = LocalNavController.current
+    LaunchedEffect(Unit) {
+        navEvents.collect { event ->
+            when (event) {
+                is ProfileNavEvent.NavigateBack -> rootNavController.popBackStack()
 
-        is ProfileNavEvent.NavigateToLogin -> {
-          rootNavController.navigate(LoginParams(fromScreen = "profile")) {
-            popUpTo(0) { inclusive = true }
-          }
+                is ProfileNavEvent.NavigateToLogin -> {
+                    rootNavController.navigate(LoginParams(fromScreen = "profile")) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }

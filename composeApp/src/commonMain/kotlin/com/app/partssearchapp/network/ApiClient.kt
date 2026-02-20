@@ -6,18 +6,14 @@ import kotlinx.coroutines.delay
  * Global API client interface for making network requests
  */
 interface ApiClient {
-  suspend fun get(endpoint: String): ApiResponse
-  suspend fun post(endpoint: String, data: Any): ApiResponse
+    suspend fun get(endpoint: String): ApiResponse
+    suspend fun post(endpoint: String, data: Any): ApiResponse
 }
 
 /**
  * Response model for API calls
  */
-data class ApiResponse(
-  val isSuccess: Boolean,
-  val data: String?,
-  val errorMessage: String? = null,
-)
+data class ApiResponse(val isSuccess: Boolean, val data: String?, val errorMessage: String? = null,)
 
 /**
  * Mock implementation of ApiClient for demo purposes
@@ -25,47 +21,46 @@ data class ApiResponse(
  */
 class MockApiClient : ApiClient {
 
-  override suspend fun get(endpoint: String): ApiResponse {
-    // Simulate network delay
-    delay(1000)
+    override suspend fun get(endpoint: String): ApiResponse {
+        // Simulate network delay
+        delay(1000)
 
-    return when {
-      endpoint.contains("repositories") -> {
-        ApiResponse(
-          isSuccess = true,
-          data = generateRepositoriesJson()
-        )
-      }
+        return when {
+            endpoint.contains("repositories") -> {
+                ApiResponse(
+                    isSuccess = true,
+                    data = generateRepositoriesJson()
+                )
+            }
 
-      endpoint.contains("user") -> {
-        ApiResponse(
-          isSuccess = true,
-          data = """{"user": "active", "status": "authenticated"}"""
-        )
-      }
+            endpoint.contains("user") -> {
+                ApiResponse(
+                    isSuccess = true,
+                    data = """{"user": "active", "status": "authenticated"}"""
+                )
+            }
 
-      else -> {
-        ApiResponse(
-          isSuccess = false,
-          data = null,
-          errorMessage = "Endpoint not found: $endpoint"
-        )
-      }
+            else -> {
+                ApiResponse(
+                    isSuccess = false,
+                    data = null,
+                    errorMessage = "Endpoint not found: $endpoint"
+                )
+            }
+        }
     }
-  }
 
-  override suspend fun post(endpoint: String, data: Any): ApiResponse {
-    // Simulate network delay
-    delay(300)
+    override suspend fun post(endpoint: String, data: Any): ApiResponse {
+        // Simulate network delay
+        delay(300)
 
-    return ApiResponse(
-      isSuccess = true,
-      data = """{"status": "success", "message": "Data posted successfully"}"""
-    )
-  }
+        return ApiResponse(
+            isSuccess = true,
+            data = """{"status": "success", "message": "Data posted successfully"}"""
+        )
+    }
 
-  private fun generateRepositoriesJson(): String {
-    return """
+    private fun generateRepositoriesJson(): String = """
     {
       "repositories": [
         {
@@ -119,5 +114,4 @@ class MockApiClient : ApiClient {
       ]
     }
     """.trimIndent()
-  }
 }

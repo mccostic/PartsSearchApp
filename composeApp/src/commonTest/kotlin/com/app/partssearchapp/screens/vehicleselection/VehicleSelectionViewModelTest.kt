@@ -25,10 +25,7 @@ class VehicleSelectionViewModelTest {
         tearDownTestDispatchers()
     }
 
-    private fun createVm(
-        preselectedMakeId: Int = -1,
-        preselectedMakeName: String = "",
-    ) = VehicleSelectionViewModel(
+    private fun createVm(preselectedMakeId: Int = -1, preselectedMakeName: String = "",) = VehicleSelectionViewModel(
         params = VehicleSelectionParams(
             preselectedMakeId = preselectedMakeId,
             preselectedMakeName = preselectedMakeName,

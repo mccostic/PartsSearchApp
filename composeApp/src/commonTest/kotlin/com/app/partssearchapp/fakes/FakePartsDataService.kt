@@ -70,7 +70,13 @@ class FakePartsDataService : PartsDataService {
     )
     var vendors = listOf(
         Vendor(
-            1, "Vendor A", "Accra", "+233 20 111 2222", 4.5, 100, true,
+            1,
+            "Vendor A",
+            "Accra",
+            "+233 20 111 2222",
+            4.5,
+            100,
+            true,
         ),
     )
     var searchResults = listOf(
@@ -108,11 +114,7 @@ class FakePartsDataService : PartsDataService {
         return modelsForMake[makeId]?.filter { it.year == year } ?: emptyList()
     }
 
-    override suspend fun getEnginesForModel(
-        makeId: Int,
-        year: Int,
-        modelId: Int,
-    ): List<VehicleEngine> {
+    override suspend fun getEnginesForModel(makeId: Int, year: Int, modelId: Int,): List<VehicleEngine> {
         if (shouldThrow) throw Exception(errorMessage)
         return enginesForModel[modelId] ?: emptyList()
     }
