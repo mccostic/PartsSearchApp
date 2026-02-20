@@ -51,6 +51,7 @@ suspend fun awaitIdle() {
  * Collects SharedFlow events into a list. Returns the job and the list.
  * Start this BEFORE emitting events since SharedFlow has no replay.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T> TestScope.collectEvents(flow: SharedFlow<T>): Pair<MutableList<T>, kotlinx.coroutines.Job> {
   val events = mutableListOf<T>()
   val job = launch(UnconfinedTestDispatcher(testScheduler)) {

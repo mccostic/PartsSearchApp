@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS vinschema (
 );
 
 CREATE TABLE IF NOT EXISTS wmi (
-  id INTEGER NOT NULL PRIMARY KEY
+  id INTEGER NOT NULL PRIMARY KEY,
+  vehicletypeid TEXT
 );
 
 CREATE TABLE IF NOT EXISTS wmi_vinschema (
@@ -34,14 +35,6 @@ CREATE TABLE IF NOT EXISTS pattern (
 
 ------------------------------------------------------------
 -- MAKE / MODEL RELATIONSHIP
-------------------------------------------------------------
--- make_model is the LINK TABLE between make and model
---
--- make.id        -> make_model.makeid
--- model.id       -> make_model.modelid
---
--- A make can have many models.
--- A model belongs to one or more makes.
 ------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS make (
@@ -99,28 +92,32 @@ CREATE TABLE IF NOT EXISTS valvetraindesign (
 ------------------------------------------------------------
 
 ------------------------------------------------------------
--- GET ALL MAKES
+-- GET ALL CAR / SUV MAKES ONLY
+-- vehicletypeid: 2 = Passenger Car, 7 = MPV (SUV/Crossover)
 ------------------------------------------------------------
 getMakes:
-SELECT id, name
-FROM make
-ORDER BY name;
-
-------------------------------------------------------------
--- GET MODELS FOR A MAKE
--- Uses make_model link table
-------------------------------------------------------------
-getModelsForMake:
-SELECT DISTINCT
-    m.id,
-    m.name
-FROM make_model mm
-JOIN model m ON m.id = mm.modelid
-WHERE mm.makeid = :makeId
+SELECT DISTINCT m.id, m.name
+FROM make m
+JOIN wmi_make wm ON wm.makeid = m.id
+JOIN wmi w       ON w.id = wm.wmiid
+WHERE w.vehicletypeid IN ('2', '7')
 ORDER BY m.name;
 
 ------------------------------------------------------------
--- (Optional helper) GET MAKE FROM MODEL
+-- GET CAR / SUV MODELS FOR A MAKE
+------------------------------------------------------------
+getModelsForMake:
+SELECT DISTINCT mo.id, mo.name
+FROM model mo
+JOIN make_model mm ON mm.modelid = mo.id
+JOIN wmi_make wm   ON wm.makeid  = mm.makeid
+JOIN wmi w         ON w.id       = wm.wmiid
+WHERE mm.makeid = :makeId
+  AND w.vehicletypeid IN ('2', '7')
+ORDER BY mo.name;
+
+------------------------------------------------------------
+-- GET MAKE FOR A MODEL
 ------------------------------------------------------------
 getMakeForModel:
 SELECT mk.id, mk.name
@@ -129,31 +126,49 @@ JOIN make mk ON mk.id = mm.makeid
 WHERE mm.modelid = :modelId;
 
 ------------------------------------------------------------
--- GET YEARS AVAILABLE FOR A MAKE
+-- GET YEARS AVAILABLE FOR A MAKE (all models)
 ------------------------------------------------------------
 getYearsForMake:
 SELECT DISTINCT wvs.yearfrom AS year
 FROM wmi_vinschema wvs
-JOIN wmi w       ON w.id = wvs.wmiid
-JOIN wmi_make wm ON wm.wmiid = w.id
-WHERE wm.makeid = :makeId
-  AND wvs.yearfrom >= 2005
-  AND wvs.yearfrom <= 2026
-ORDER BY wvs.yearfrom DESC;
+JOIN wmi_make wm ON wm.wmiid = wvs.wmiid
+WHERE wm.makeid     = :makeId
+  AND wvs.yearfrom >= '2010'
+ORDER BY year DESC;
 
+------------------------------------------------------------
+-- GET YEARS AVAILABLE FOR A MAKE / MODEL
+------------------------------------------------------------
+getYearsForMakeModel:
+SELECT DISTINCT wvs.yearfrom AS year
+FROM wmi_vinschema wvs
+JOIN wmi_make wm ON wm.wmiid = wvs.wmiid
+JOIN pattern p   ON p.vinschemaid = wvs.vinschemaid
+WHERE wm.makeid      = :makeId
+  AND p.elementid    = '28'
+  AND p.attributeid  = :modelId
+  AND wvs.yearfrom  >= '2010'
+ORDER BY year DESC;
 
 ------------------------------------------------------------
 -- ENGINE SPECS BY MAKE / MODEL / YEAR
--- SQLite + SQLDelight version of:
--- get_engine_specs_by_make_model_year()
+-- SQLite + SQLDelight version of get_engine_specs_by_make_model_year()
+--
+-- Steps:
+-- 1. Find vinschemaid for make/model/year
+-- 2. Get all trims
+-- 3. Find valid engine keys (must have engine model OR hp)
+-- 4. Pivot engine attributes per key
+-- 5. Deduplicate by engine_model (keep highest HP)
+-- 6. Enrich from enginemodelpattern (displacement_cc, turbo, valve_train)
+-- 7. Decode lookup ids to names
 ------------------------------------------------------------
 getEngineSpecs:
 WITH schema_id AS (
     SELECT DISTINCT vs.id AS sid
     FROM vinschema vs
     JOIN wmi_vinschema wvs ON wvs.vinschemaid = vs.id
-    JOIN wmi w             ON w.id = wvs.wmiid
-    JOIN wmi_make wm       ON wm.wmiid = w.id
+    JOIN wmi_make wm       ON wm.wmiid = wvs.wmiid
     JOIN pattern p         ON p.vinschemaid = vs.id
     WHERE wm.makeid     = :makeId
       AND wvs.yearfrom  = :year
@@ -161,100 +176,95 @@ WITH schema_id AS (
       AND p.attributeid = :modelId
     LIMIT 1
 ),
-
-valid_engines AS (
-    -- displacement rows that actually have engine info
-    SELECT DISTINCT p.keys
-    FROM pattern p
-    CROSS JOIN schema_id s
+trims AS (
+    SELECT GROUP_CONCAT(DISTINCT p.attributeid) AS trim_name
+    FROM pattern p, schema_id s
     WHERE p.vinschemaid = s.sid
-      AND p.elementid = '13'
-      AND (
-            EXISTS (
-                SELECT 1 FROM pattern px
-                WHERE px.vinschemaid = s.sid
-                  AND px.elementid = '18'
-                  AND px.keys = p.keys
-            )
-            OR EXISTS (
-                SELECT 1 FROM pattern px
-                WHERE px.vinschemaid = s.sid
-                  AND px.elementid = '71'
-                  AND px.keys = p.keys
-            )
-          )
+      AND p.elementid   = '38'
 ),
-
-engine_specs AS (
+valid_engines AS (
+    SELECT DISTINCT p.keys
+    FROM pattern p, schema_id s
+    WHERE p.vinschemaid = s.sid
+      AND p.elementid   = '13'
+      AND (
+          EXISTS (
+              SELECT 1 FROM pattern px
+              WHERE px.vinschemaid = s.sid
+                AND px.elementid  = '18'
+                AND px.keys       = p.keys
+          )
+          OR EXISTS (
+              SELECT 1 FROM pattern px
+              WHERE px.vinschemaid = s.sid
+                AND px.elementid  = '71'
+                AND px.keys       = p.keys
+          )
+      )
+),
+engine_specs_raw AS (
     SELECT
-        MAX(CASE WHEN p.elementid = '18'
-            THEN p.attributeid END) AS engine_model,
-
-        MAX(CASE WHEN p.elementid = '13'
-            THEN p.attributeid END) AS displacement_l,
-
-        CAST(
-            ROUND(
-                CAST(MAX(CASE WHEN p.elementid='13'
-                     THEN p.attributeid END) AS REAL) * 1000
-            ) AS TEXT
-        ) AS displacement_cc,
-
-        MAX(CASE WHEN p.elementid = '9'
-            THEN p.attributeid END) AS cylinders,
-
-        MAX(CASE WHEN p.elementid = '71'
-            THEN p.attributeid END) AS horsepower_from,
-
-        MAX(CASE WHEN p.elementid = '125'
-            THEN p.attributeid END) AS horsepower_to,
-
-        MAX(CASE WHEN p.elementid = '64'
-            THEN ec.name END) AS engine_config,
-
-        MAX(CASE WHEN p.elementid = '24'
-            THEN ft.name END) AS fuel_type,
-
-        MAX(CASE WHEN p.elementid = '135'
-            THEN tb.name END) AS turbo,
-
-        MAX(CASE WHEN p.elementid = '62'
-            THEN vt.name END) AS valve_train
-
+        ve.keys,
+        MAX(CASE WHEN p.elementid = '18'  THEN p.attributeid END) AS engine_model,
+        MAX(CASE WHEN p.elementid = '13'  THEN p.attributeid END) AS displacement_l,
+        MAX(CASE WHEN p.elementid = '9'   THEN p.attributeid END) AS cylinders,
+        MAX(CASE WHEN p.elementid = '71'  THEN p.attributeid END) AS horsepower_from,
+        MAX(CASE WHEN p.elementid = '125' THEN p.attributeid END) AS horsepower_to,
+        MAX(CASE WHEN p.elementid = '64'  THEN p.attributeid END) AS engine_config_id,
+        MAX(CASE WHEN p.elementid = '24'  THEN p.attributeid END) AS fuel_type_id,
+        MAX(CASE WHEN p.elementid = '135' THEN p.attributeid END) AS turbo_id,
+        MAX(CASE WHEN p.elementid = '62'  THEN p.attributeid END) AS valve_train_id
     FROM valid_engines ve
     JOIN pattern p ON p.keys = ve.keys
-    CROSS JOIN schema_id s
-
-    LEFT JOIN engineconfiguration ec
-           ON ec.id = p.attributeid
-          AND p.elementid = '64'
-
-    LEFT JOIN fueltype ft
-           ON ft.id = p.attributeid
-          AND p.elementid = '24'
-
-    LEFT JOIN turbo tb
-           ON tb.id = p.attributeid
-          AND p.elementid = '135'
-
-    LEFT JOIN valvetraindesign vt
-           ON vt.id = p.attributeid
-          AND p.elementid = '62'
-
-    WHERE p.vinschemaid = s.sid
+    JOIN schema_id s ON p.vinschemaid = s.sid
     GROUP BY ve.keys
+),
+-- Deduplicate: one row per engine model, keep highest HP
+engine_specs AS (
+    SELECT
+        engine_model,
+        displacement_l,
+        cylinders,
+        MAX(horsepower_from) AS horsepower_from,
+        horsepower_to,
+        engine_config_id,
+        fuel_type_id,
+        turbo_id,
+        valve_train_id
+    FROM engine_specs_raw
+    GROUP BY engine_model
+),
+-- Extra specs from enginemodelpattern (displacement_cc, turbo, valve_train)
+engine_model_specs AS (
+    SELECT
+        em.name AS engine_name,
+        MAX(CASE WHEN emp.elementid = '11'  THEN emp.attributeid END) AS displacement_cc,
+        MAX(CASE WHEN emp.elementid = '135' THEN emp.attributeid END) AS turbo_id,
+        MAX(CASE WHEN emp.elementid = '62'  THEN emp.attributeid END) AS valve_train_id
+    FROM enginemodel em
+    JOIN enginemodelpattern emp ON emp.enginemodelid = em.id
+    GROUP BY em.name
 )
-
-SELECT DISTINCT
-    engine_model,
-    displacement_l,
-    displacement_cc,
-    cylinders,
-    horsepower_from,
-    horsepower_to,
-    engine_config,
-    fuel_type,
-    turbo,
-    valve_train
-FROM engine_specs
-ORDER BY displacement_l;
+SELECT
+    t.trim_name,
+    es.engine_model,
+    es.displacement_l,
+    COALESCE(
+        ems.displacement_cc,
+        CAST(ROUND(CAST(es.displacement_l AS REAL) * 1000, 0) AS TEXT)
+    )               AS displacement_cc,
+    es.cylinders,
+    es.horsepower_from,
+    es.horsepower_to,
+    ec.name         AS engine_config,
+    ft.name         AS fuel_type,
+    tb.name         AS turbo,
+    vt.name         AS valve_train
+FROM engine_specs es
+CROSS JOIN trims t
+LEFT JOIN engine_model_specs   ems ON ems.engine_name = es.engine_model
+LEFT JOIN engineconfiguration  ec  ON ec.id  = es.engine_config_id
+LEFT JOIN fueltype             ft  ON ft.id  = es.fuel_type_id
+LEFT JOIN turbo                tb  ON tb.id  = COALESCE(ems.turbo_id,      es.turbo_id)
+LEFT JOIN valvetraindesign     vt  ON vt.id  = COALESCE(ems.valve_train_id, es.valve_train_id)
+ORDER BY es.displacement_l;
