@@ -18,7 +18,7 @@ import kotlinx.coroutines.yield
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun setupTestDispatchers() {
-  Dispatchers.setMain(UnconfinedTestDispatcher())
+    Dispatchers.setMain(UnconfinedTestDispatcher())
 }
 
 /**
@@ -27,7 +27,7 @@ fun setupTestDispatchers() {
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun tearDownTestDispatchers() {
-  Dispatchers.resetMain()
+    Dispatchers.resetMain()
 }
 
 /**
@@ -37,14 +37,14 @@ fun tearDownTestDispatchers() {
  * to wake up and process buffered events.
  */
 suspend fun awaitIdle() {
-  repeat(3) {
-    withContext(Dispatchers.Default) { yield() }
-  }
-  // Real-time delay on Default gives collector coroutines time to process
-  withContext(Dispatchers.Default) { delay(50) }
-  repeat(2) {
-    withContext(Dispatchers.Default) { yield() }
-  }
+    repeat(3) {
+        withContext(Dispatchers.Default) { yield() }
+    }
+    // Real-time delay on Default gives collector coroutines time to process
+    withContext(Dispatchers.Default) { delay(50) }
+    repeat(2) {
+        withContext(Dispatchers.Default) { yield() }
+    }
 }
 
 /**
@@ -52,9 +52,9 @@ suspend fun awaitIdle() {
  * Start this BEFORE emitting events since SharedFlow has no replay.
  */
 fun <T> TestScope.collectEvents(flow: SharedFlow<T>): Pair<MutableList<T>, kotlinx.coroutines.Job> {
-  val events = mutableListOf<T>()
-  val job = launch(UnconfinedTestDispatcher(testScheduler)) {
-    flow.collect { events.add(it) }
-  }
-  return events to job
+    val events = mutableListOf<T>()
+    val job = launch(UnconfinedTestDispatcher(testScheduler)) {
+        flow.collect { events.add(it) }
+    }
+    return events to job
 }
