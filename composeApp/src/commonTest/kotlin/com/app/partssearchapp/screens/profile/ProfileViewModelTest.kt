@@ -121,12 +121,12 @@ class ProfileViewModelTest {
     @Test
     fun tabSelectedChangesTab() = runTest {
         val vm = createVm()
-
+        advanceUntilIdle()
         assertEquals(ProfileTab.SETTINGS, vm.stateFlow.value.uiState.selectedTab)
 
         vm.emitUIEvent(ProfileUIEvent.TabSelected(ProfileTab.ACTIVITY))
         awaitIdle()
-
+        advanceUntilIdle()
         assertEquals(ProfileTab.ACTIVITY, vm.stateFlow.value.uiState.selectedTab)
     }
 
