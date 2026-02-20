@@ -5,8 +5,6 @@ import com.app.partssearchapp.awaitIdle
 import com.app.partssearchapp.collectEvents
 import com.app.partssearchapp.setupTestDispatchers
 import com.app.partssearchapp.tearDownTestDispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,6 +12,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {

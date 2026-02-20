@@ -71,4 +71,3 @@ suspend fun <T> TestScope.collectUntilIdle(flow: SharedFlow<T>): List<T> {
     job.cancel()
     return events
 }
-
