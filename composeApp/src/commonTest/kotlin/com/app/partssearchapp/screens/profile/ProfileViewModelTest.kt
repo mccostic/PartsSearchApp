@@ -13,6 +13,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -87,10 +88,12 @@ class ProfileViewModelTest {
 
         vm.emitUIEvent(ProfileUIEvent.StartEditing)
         awaitIdle()
+        advanceUntilIdle()
         assertTrue(vm.stateFlow.value.uiState.isEditing)
 
         vm.emitUIEvent(ProfileUIEvent.CancelEditing)
         awaitIdle()
+        advanceUntilIdle()
 
         assertFalse(vm.stateFlow.value.uiState.isEditing)
     }
@@ -111,7 +114,7 @@ class ProfileViewModelTest {
 
         vm.emitUIEvent(ProfileUIEvent.UpdateBio("New Bio"))
         awaitIdle()
-
+        advanceUntilIdle()
         assertEquals("New Bio", vm.stateFlow.value.userProfile.bio)
     }
 
@@ -143,11 +146,12 @@ class ProfileViewModelTest {
 
         vm.emitUIEvent(ProfileUIEvent.ShowDeleteDialog)
         awaitIdle()
+        advanceUntilIdle()
         assertTrue(vm.stateFlow.value.uiState.showDeleteDialog)
 
         vm.emitUIEvent(ProfileUIEvent.DismissDeleteDialog)
         awaitIdle()
-
+        advanceUntilIdle()
         assertFalse(vm.stateFlow.value.uiState.showDeleteDialog)
     }
 
@@ -200,7 +204,7 @@ class ProfileViewModelTest {
 
         vm.emitUIEvent(ProfileUIEvent.TriggerError)
         awaitIdle()
-
+        advanceUntilIdle()
         assertNotNull(lastError)
         assertTrue(navEvents.any { it is ProfileNavEvent.NavigateBack })
         job.cancel()

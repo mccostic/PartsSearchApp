@@ -36,7 +36,7 @@ class VendorDashboardViewModelTest {
         advanceUntilIdle()
         val state = vm.stateFlow.value
         assertNotNull(state.vendor)
-        assertEquals("Accra Auto Parts", state.vendor?.name)
+        assertEquals("Accra Auto Parts", state.vendor.name)
         assertTrue(state.listings.isNotEmpty())
         assertTrue(state.orders.isNotEmpty())
         assertTrue(state.availableParts.isNotEmpty())
@@ -218,7 +218,7 @@ class VendorDashboardViewModelTest {
     fun revenueStatsComputedFromDeliveredOrders() = runTest {
         val vm = createVm()
         awaitIdle()
-
+        advanceUntilIdle()
         val state = vm.stateFlow.value
         assertTrue(state.totalRevenue > 0.0)
         assertTrue(state.totalItemsSold > 0)
