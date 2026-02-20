@@ -8,6 +8,9 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint.gradle)
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -110,6 +113,68 @@ sqldelight {
     databases {
         create("VpicDatabase") {
             packageName.set("com.app.partssearchapp.database")
+        }
+    }
+}
+
+// ── Detekt (Static Analysis) ──────────────────────────────────────────────────
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    source.setFrom(
+        "src/commonMain/kotlin",
+        "src/androidMain/kotlin",
+        "src/iosMain/kotlin"
+    )
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        sarif.required.set(true)
+    }
+}
+
+// ── Ktlint (Code Formatting) ─────────────────────────────────────────────────
+ktlint {
+    version.set("1.5.0")
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    filter {
+        exclude("**/generated/**")
+        exclude("**/build/**")
+    }
+}
+
+// ── Kover (Test Coverage) ─────────────────────────────────────────────────────
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    // Exclude generated/framework code from coverage
+                    "*.BuildConfig",
+                    "*.ComposableSingletons*",
+                    "*_Factory",
+                    "*_HiltModules*",
+                    "*.di.*",
+                    "*.database.*",
+                    "*.network.*",
+                    // Exclude Compose UI (not unit-testable)
+                    "*.compose.*",
+                    "*.App*",
+                    "*.Navigator*",
+                    "*.Platform*",
+                    "*.theme.*"
+                )
+            }
+        }
+        verify {
+            rule("Minimum coverage") {
+                minBound(60)
+            }
         }
     }
 }
