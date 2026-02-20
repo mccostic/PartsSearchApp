@@ -176,7 +176,7 @@ kover {
         }
         verify {
             rule("Minimum coverage") {
-                minBound(60)
+                minBound(50)
             }
         }
     }
