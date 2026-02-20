@@ -82,15 +82,6 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
     ): String {
         val parts = mutableListOf<String>()
 
-        println("buildEngineDescription= displacementL= $displacementL")
-        println("buildEngineDescription= cylinders= $cylinders")
-        println("buildEngineDescription= engineConfig= $engineConfig")
-        println("buildEngineDescription= fuelType= $fuelType")
-        println("buildEngineDescription= turbo= $turbo")
-        println("buildEngineDescription= valveTrain= $valveTrain")
-        println("buildEngineDescription= horsepowerFrom= $horsepowerFrom")
-        println("buildEngineDescription= horsepowerTo= $horsepowerTo")
-
         displacementL?.let { parts.add("${it}L") }
 
         val cylinderConfig = when {
@@ -114,23 +105,21 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
 
         valveTrain?.let { parts.add(it) }
 
-        turbo?.let {
-            if (it.isNotBlank() && !it.equals("NA", ignoreCase = true) && !it.equals("N/A", ignoreCase = true)) {
-                parts.add("Turbo")
-            }
+        turbo?.takeIf { it.isNotBlank() && !it.equals("NA", true) && !it.equals("N/A", true) }?.let {
+            parts.add("Turbo")
         }
 
         fuelType?.let {
-            if (it.contains("Diesel", ignoreCase = true)) {
-                parts.add("Diesel")
-            } else if (it.contains("Electric", ignoreCase = true) || it.contains("Hybrid", ignoreCase = true)) {
-                parts.add(it)
+            when {
+                it.contains("Diesel", ignoreCase = true) -> parts.add("Diesel")
+                it.contains("Electric", ignoreCase = true) ||
+                    it.contains("Hybrid", ignoreCase = true) -> parts.add(it)
             }
         }
 
         val hp = when {
-            horsepowerFrom != null && horsepowerTo != null && horsepowerFrom != horsepowerTo ->
-                "$horsepowerFrom-${horsepowerTo}hp"
+            horsepowerFrom != null && horsepowerTo != null &&
+                horsepowerFrom != horsepowerTo -> "$horsepowerFrom-${horsepowerTo}hp"
             horsepowerFrom != null -> "${horsepowerFrom}hp"
             else -> null
         }
@@ -139,5 +128,13 @@ class VpicLocalDataSource(driverFactory: DatabaseDriverFactory?) {
         return if (parts.isEmpty()) "Unknown Engine" else parts.joinToString(" ")
     }
 
-    private fun generateEngineId(makeId: Int, year: Int, modelId: Int, index: Int): Int = (makeId * 1000000) + (year % 100 * 10000) + (modelId % 100 * 100) + index
+    private fun generateEngineId(
+        makeId: Int,
+        year: Int,
+        modelId: Int,
+        index: Int
+    ): Int = (makeId * 1000000) +
+        ((year % 100) * 10000) +
+        ((modelId % 100) * 100) +
+        index
 }
